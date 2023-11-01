@@ -13,7 +13,7 @@ Future<List<Station>> searchStations(
   print(url);
   final response = await client.get(Uri.parse(url));
   if (response.statusCode == 200) {
-    Iterable l = json.decode(response.body);
+    Iterable l = json.decode(utf8.decode(response.bodyBytes));
     return List<Station>.from(l.map((model) => Station.fromJson(model)));
   } else {
     throw Exception('Failed to load stations');
