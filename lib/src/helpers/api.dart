@@ -5,9 +5,12 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../models/station.dart';
 import 'package:http/http.dart' as http;
 
-Future<List<Station>> searchStations(http.Client client, String query) async {
+Future<List<Station>> searchStations(
+    http.Client client, String query, int limit) async {
   final baseApiUrl = dotenv.env['BASE_API_URL'];
-  final url = "$baseApiUrl/search/stations?q=$query";
+  query = Uri.encodeComponent(query);
+  final url = "$baseApiUrl/search/stations?q=$query&limit=$limit";
+  print(url);
   final response = await client.get(Uri.parse(url));
   if (response.statusCode == 200) {
     Iterable l = json.decode(response.body);

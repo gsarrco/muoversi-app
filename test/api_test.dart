@@ -33,7 +33,7 @@ void main() async {
       when(client.get(Uri.parse(url)))
           .thenAnswer((_) async => http.Response(jsonEncode(result), 200));
 
-      expect(await searchStations(client, query), isA<List<Station>>());
+      expect(await searchStations(client, query, 4), isA<List<Station>>());
     });
   });
 }
