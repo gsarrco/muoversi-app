@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:muoversi/src/models/station.dart';
 
 import 'search_stations/station_details_view.dart';
 import 'search_stations/search_stations_list_view.dart';
