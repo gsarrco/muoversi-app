@@ -22,4 +22,14 @@ class Station {
       source: json['source'],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'lat': lat,
+      'lon': lon,
+      'source': source,
+    };
+  }
 }

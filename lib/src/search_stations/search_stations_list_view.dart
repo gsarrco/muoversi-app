@@ -83,7 +83,7 @@ class _SearchStationsListViewState extends State<SearchStationsListView> {
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   return ListView.builder(
-                    restorationId: 'sampleItemListView',
+                    restorationId: 'SearchStationsListView',
                     itemCount: snapshot.data?.length,
                     itemBuilder: (BuildContext context, int index) {
                       final station = snapshot.data![index];
@@ -113,6 +113,7 @@ class _SearchStationsListViewState extends State<SearchStationsListView> {
                             Navigator.restorablePushNamed(
                               context,
                               StationDetailsView.routeName,
+                              arguments: station.toJson(),
                             );
                           });
                     },
