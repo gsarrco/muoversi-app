@@ -1,30 +1,5 @@
-# muoversi
+# Muoversi App
 
-A new Flutter project.
+Muoversi is a mobile public transit app, interface of the [muoversi-server](https://github.com/gsarrco/muoversi-server), for displaying timetables and routes for busses and waterbusses in Venice, Italy (Actv), and trains within 100km from Venice (Trenitalia). However, it is designed to be easily extensible to other cities and transit companies in the future.
 
-## Getting Started
-
-This project is a starting point for a Flutter application that follows the
-[simple app state management
-tutorial](https://flutter.dev/docs/development/data-and-backend/state-mgmt/simple).
-
-For help getting started with Flutter development, view the
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-
-## Assets
-
-The `assets` directory houses images, fonts, and any other files you want to
-include with your application.
-
-The `assets/images` directory contains [resolution-aware
-images](https://flutter.dev/docs/development/ui/assets-and-images#resolution-aware).
-
-## Localization
-
-This project generates localized messages based on arb files found in
-the `lib/src/localization` directory.
-
-To support additional languages, please visit the tutorial on
-[Internationalizing Flutter
-apps](https://flutter.dev/docs/development/accessibility-and-localization/internationalization)
+It is built using [Flutter](https://flutter.dev/). It is under development and not yet available on any app store.
