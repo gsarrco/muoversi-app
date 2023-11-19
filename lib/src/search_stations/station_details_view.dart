@@ -26,6 +26,7 @@ class _StationDetailsViewState extends State<StationDetailsView> {
   final int limit = 12;
   late DateTime currentDate;
   late DateTime refDate;
+  late bool noMoreData = false;
 
   @override
   void initState() {
@@ -44,7 +45,9 @@ class _StationDetailsViewState extends State<StationDetailsView> {
   void _scrollListener() {
     if (_scrollController.position.atEdge) {
       if (_scrollController.position.pixels != 0) {
-        updateStopTimes();
+        if (!noMoreData) {
+          updateStopTimes();
+        }
       }
     }
   }
@@ -55,6 +58,7 @@ class _StationDetailsViewState extends State<StationDetailsView> {
     getStopTimes(http.Client(), widget.station.ids, widget.station.source, date,
             offset, limit)
         .then((newStopTimes) {
+      noMoreData = newStopTimes.length < limit;
       _stopTimesController.add(_stopTimesController.value + newStopTimes);
       offset += limit;
     });
@@ -78,34 +82,34 @@ class _StationDetailsViewState extends State<StationDetailsView> {
 
   @override
   Widget build(BuildContext context) {
+    final dayButtons = Row(children: [
+      if (refDate.isAfter(currentDate))
+        Expanded(
+          child: TextButton(
+            child: const Text("-1 day", style: TextStyle(fontSize: 16)),
+            onPressed: () {
+              changeDate(-1);
+            },
+          ),
+        ),
+      if (refDate.isBefore(currentDate.add(const Duration(days: 2))))
+        Expanded(
+          child: TextButton(
+            child: const Text("+1 day", style: TextStyle(fontSize: 16)),
+            onPressed: () {
+              changeDate(1);
+            },
+          ),
+        ),
+    ]);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.station.name),
       ),
       body: Center(
         child: Column(children: [
-          Row(
-            children: <Widget>[
-              if (refDate.isAfter(currentDate))
-                Expanded(
-                  child: TextButton(
-                    child: const Text("-1 day", style: TextStyle(fontSize: 16)),
-                    onPressed: () {
-                      changeDate(-1);
-                    },
-                  ),
-                ),
-              if (refDate.isBefore(currentDate.add(const Duration(days: 2))))
-                Expanded(
-                  child: TextButton(
-                    child: const Text("+1 day", style: TextStyle(fontSize: 16)),
-                    onPressed: () {
-                      changeDate(1);
-                    },
-                  ),
-                ),
-            ],
-          ),
+          dayButtons,
           Expanded(
               child: StreamBuilder<List<StopTime>>(
             stream: _stopTimesController.stream,
@@ -119,9 +123,18 @@ class _StationDetailsViewState extends State<StationDetailsView> {
                   controller: _scrollController,
                   itemBuilder: (BuildContext context, int index) {
                     final stopTime = stopTimes[index];
-                    if (index == stopTimes.length - 1) {
+                    if (index == stopTimes.length - 1 && !noMoreData) {
                       return const Center(
                         child: CircularProgressIndicator(),
+                      );
+                    } else if (index == stopTimes.length - 1 && noMoreData) {
+                      return Column(
+                        children: [
+                          const Divider(),
+                          const Text('No more stop times for this day'),
+                          const SizedBox(height: 20),
+                          dayButtons
+                        ],
                       );
                     } else {
                       return ListTile(
