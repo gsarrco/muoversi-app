@@ -82,26 +82,37 @@ class _StationDetailsViewState extends State<StationDetailsView> {
 
   @override
   Widget build(BuildContext context) {
-    final dayButtons = Row(children: [
-      if (refDate.isAfter(currentDate))
+    Widget dayButtons(bool header) {
+      return Row(children: [
         Expanded(
-          child: TextButton(
-            child: const Text("-1 day", style: TextStyle(fontSize: 16)),
-            onPressed: () {
-              changeDate(-1);
-            },
-          ),
+          child: refDate.isAfter(currentDate)
+              ? TextButton(
+                  child: const Text("-1 day", style: TextStyle(fontSize: 16)),
+                  onPressed: () {
+                    changeDate(-1);
+                  },
+                )
+              : Container(),
         ),
-      if (refDate.isBefore(currentDate.add(const Duration(days: 2))))
+        if (header)
+          Expanded(
+              child: Text(
+            DateFormat('EEEE d MMM').format(refDate),
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.blue),
+          )),
         Expanded(
-          child: TextButton(
-            child: const Text("+1 day", style: TextStyle(fontSize: 16)),
-            onPressed: () {
-              changeDate(1);
-            },
-          ),
+          child: refDate.isBefore(currentDate.add(const Duration(days: 2)))
+              ? TextButton(
+                  child: const Text("+1 day", style: TextStyle(fontSize: 16)),
+                  onPressed: () {
+                    changeDate(1);
+                  },
+                )
+              : Container(),
         ),
-    ]);
+      ]);
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -109,7 +120,7 @@ class _StationDetailsViewState extends State<StationDetailsView> {
       ),
       body: Center(
         child: Column(children: [
-          dayButtons,
+          dayButtons(true),
           Expanded(
               child: StreamBuilder<List<StopTime>>(
             stream: _stopTimesController.stream,
@@ -133,7 +144,7 @@ class _StationDetailsViewState extends State<StationDetailsView> {
                           const Divider(),
                           const Text('No more stop times for this day'),
                           const SizedBox(height: 20),
-                          dayButtons
+                          dayButtons(false)
                         ],
                       );
                     } else {
