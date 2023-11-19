@@ -1,9 +1,9 @@
 class StopTime {
   final int id;
-  final String schedArrDt;
-  final String schedDepDt;
+  final DateTime? schedArrDt;
+  final DateTime? schedDepDt;
   final String origDepDate;
-  final String platform;
+  final String? platform;
   final String origId;
   final String destText;
   final int number;
@@ -13,10 +13,10 @@ class StopTime {
 
   StopTime({
     required this.id,
-    required this.schedArrDt,
-    required this.schedDepDt,
+    this.schedArrDt,
+    this.schedDepDt,
     required this.origDepDate,
-    required this.platform,
+    this.platform,
     required this.origId,
     required this.destText,
     required this.number,
@@ -28,8 +28,12 @@ class StopTime {
   factory StopTime.fromJson(Map<String, dynamic> json) {
     return StopTime(
       id: json['id'],
-      schedArrDt: json['sched_arr_dt'],
-      schedDepDt: json['sched_dep_dt'],
+      schedArrDt: json['sched_arr_dt'] != null
+          ? DateTime.parse(json['sched_arr_dt'])
+          : null,
+      schedDepDt: json['sched_dep_dt'] != null
+          ? DateTime.parse(json['sched_dep_dt'])
+          : null,
       origDepDate: json['orig_dep_date'],
       platform: json['platform'],
       origId: json['orig_id'],
