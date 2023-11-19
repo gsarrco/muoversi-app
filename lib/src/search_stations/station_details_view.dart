@@ -24,12 +24,17 @@ class _StationDetailsViewState extends State<StationDetailsView> {
   late ScrollController _scrollController;
   int offset = 0;
   final int limit = 12;
+  late DateTime currentDate;
+  late DateTime refDate;
 
   @override
   void initState() {
     super.initState();
     _stopTimesController = BehaviorSubject<List<StopTime>>.seeded([]);
     _scrollController = ScrollController();
+
+    currentDate = DateTime.now();
+    refDate = currentDate;
 
     updateStopTimes();
 
@@ -45,7 +50,7 @@ class _StationDetailsViewState extends State<StationDetailsView> {
   }
 
   void updateStopTimes() {
-    String date = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    String date = DateFormat('yyyy-MM-dd').format(refDate);
 
     getStopTimes(http.Client(), widget.station.ids, widget.station.source, date,
             offset, limit)
@@ -53,6 +58,15 @@ class _StationDetailsViewState extends State<StationDetailsView> {
       _stopTimesController.add(_stopTimesController.value + newStopTimes);
       offset += limit;
     });
+  }
+
+  void changeDate(int change) {
+    setState(() {
+      refDate = refDate.add(Duration(days: change));
+      offset = 0;
+      _stopTimesController.add([]);
+    });
+    updateStopTimes();
   }
 
   @override
@@ -69,64 +83,89 @@ class _StationDetailsViewState extends State<StationDetailsView> {
         title: Text(widget.station.name),
       ),
       body: Center(
-        child: StreamBuilder<List<StopTime>>(
-          stream: _stopTimesController.stream,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              final stopTimes = snapshot.data!;
+        child: Column(children: [
+          Row(
+            children: <Widget>[
+              if (refDate.isAfter(currentDate))
+                Expanded(
+                  child: TextButton(
+                    child: const Text("-1 day", style: TextStyle(fontSize: 15)),
+                    onPressed: () {
+                      changeDate(-1);
+                    },
+                  ),
+                ),
+              if (refDate.isBefore(currentDate.add(const Duration(days: 2))))
+                Expanded(
+                  child: TextButton(
+                    child: const Text("+1 day", style: TextStyle(fontSize: 15)),
+                    onPressed: () {
+                      changeDate(1);
+                    },
+                  ),
+                ),
+            ],
+          ),
+          Expanded(
+              child: StreamBuilder<List<StopTime>>(
+            stream: _stopTimesController.stream,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                final stopTimes = snapshot.data!;
 
-              return ListView.builder(
-                restorationId: 'StationDetailsView',
-                itemCount: stopTimes.length,
-                controller: _scrollController,
-                itemBuilder: (BuildContext context, int index) {
-                  final stopTime = stopTimes[index];
-                  if (index == stopTimes.length - 1) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  } else {
-                    return ListTile(
-                      leading: Text(
-                        DateFormat('HH:mm').format(stopTime.schedDepDt!),
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      title: Text(
-                        '${stopTime.routeName} ${stopTime.destText}',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              '#${stopTime.number}',
-                              textAlign: TextAlign.left,
-                            ),
+                return ListView.builder(
+                  restorationId: 'StationDetailsView',
+                  itemCount: stopTimes.length,
+                  controller: _scrollController,
+                  itemBuilder: (BuildContext context, int index) {
+                    final stopTime = stopTimes[index];
+                    if (index == stopTimes.length - 1) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    } else {
+                      return ListTile(
+                        leading: Text(
+                          DateFormat('HH:mm').format(stopTime.schedDepDt!),
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
                           ),
-                          if (stopTime.platform != null &&
-                              stopTime.platform!.isNotEmpty)
+                        ),
+                        title: Text(
+                          '${stopTime.routeName} ${stopTime.destText}',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Row(
+                          children: [
                             Expanded(
                               child: Text(
-                                'Platform ${stopTime.platform}',
-                                textAlign: TextAlign.right,
+                                '#${stopTime.number}',
+                                textAlign: TextAlign.left,
                               ),
                             ),
-                        ],
-                      ),
-                      isThreeLine: true,
-                    );
-                  }
-                },
-              );
-            } else if (snapshot.hasError) {
-              return Text('${snapshot.error}');
-            }
-            return const CircularProgressIndicator();
-          },
-        ),
+                            if (stopTime.platform != null &&
+                                stopTime.platform!.isNotEmpty)
+                              Expanded(
+                                child: Text(
+                                  'Platform ${stopTime.platform}',
+                                  textAlign: TextAlign.right,
+                                ),
+                              ),
+                          ],
+                        ),
+                        isThreeLine: true,
+                      );
+                    }
+                  },
+                );
+              } else if (snapshot.hasError) {
+                return Text('${snapshot.error}');
+              }
+              return const CircularProgressIndicator();
+            },
+          )),
+        ]),
       ),
     );
   }
