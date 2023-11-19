@@ -89,7 +89,7 @@ class _StationDetailsViewState extends State<StationDetailsView> {
               if (refDate.isAfter(currentDate))
                 Expanded(
                   child: TextButton(
-                    child: const Text("-1 day", style: TextStyle(fontSize: 15)),
+                    child: const Text("-1 day", style: TextStyle(fontSize: 16)),
                     onPressed: () {
                       changeDate(-1);
                     },
@@ -98,7 +98,7 @@ class _StationDetailsViewState extends State<StationDetailsView> {
               if (refDate.isBefore(currentDate.add(const Duration(days: 2))))
                 Expanded(
                   child: TextButton(
-                    child: const Text("+1 day", style: TextStyle(fontSize: 15)),
+                    child: const Text("+1 day", style: TextStyle(fontSize: 16)),
                     onPressed: () {
                       changeDate(1);
                     },
@@ -128,13 +128,14 @@ class _StationDetailsViewState extends State<StationDetailsView> {
                         leading: Text(
                           DateFormat('HH:mm').format(stopTime.schedDepDt!),
                           style: const TextStyle(
-                            fontSize: 24,
+                            fontSize: 23,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         title: Text(
                           '${stopTime.routeName} ${stopTime.destText}',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 17),
                         ),
                         subtitle: Row(
                           children: [
