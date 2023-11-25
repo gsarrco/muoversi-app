@@ -17,8 +17,9 @@ void main() async {
         () async {
       final client = MockClient();
       const query = 'test';
+      const limit = 1;
       final baseApiUrl = dotenv.env['BASE_API_URL'];
-      final url = '$baseApiUrl/search/stations?q=$query';
+      final url = '$baseApiUrl/search/stations?q=$query&limit=$limit';
 
       const result = [
         {
@@ -33,7 +34,7 @@ void main() async {
       when(client.get(Uri.parse(url)))
           .thenAnswer((_) async => http.Response(jsonEncode(result), 200));
 
-      expect(await searchStations(client, query, 4), isA<List<Station>>());
+      expect(await searchStations(client, query, limit), isA<List<Station>>());
     });
   });
 }
