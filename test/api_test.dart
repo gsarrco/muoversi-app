@@ -27,7 +27,8 @@ void main() async {
           "name": "Venezia Santa Lucia",
           "lat": 45.441397,
           "lon": 12.320462,
-          "source": "treni"
+          "source": "treni",
+          "ids": "S02593"
         }
       ];
 
