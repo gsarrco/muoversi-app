@@ -1,7 +1,7 @@
 class Offset {
   final int direction;
   final List<int>? stopTimesIds;
-  final String? time;
+  final DateTime? time;
 
   Offset({
     required this.direction,
