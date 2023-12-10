@@ -43,14 +43,18 @@ void main() async {
   });
 
   group('getStopTimes', () {
+    test('iso8601 datetimes should be formatted correctly', () {
+      final dt = DateTime.parse('2023-11-25T12:30:00');
+      expect(dt.toIso8601String(), '2023-11-25T12:30:00.000');
+    });
+
     test('returns a List of StopTime if the http call completes successfully',
         () async {
       const depStopsIds = 'aut_6021,aut_6022';
       const source = 'aut';
-      const day = '2023-11-25';
+      final startDt = DateTime.parse('2023-11-25T12:30:00');
       const offsetByStopsIds = '';
       const limit = 1;
-      const startTime = '12:30';
       const arrStopsIds = null;
       const direction = 1;
 
@@ -60,38 +64,37 @@ void main() async {
       final uri = Uri.parse("$baseApiUrl/stop_times").replace(queryParameters: {
         'dep_stops_ids': depStopsIds,
         'source': source,
-        'day': day,
         'offset_by_ids': offsetByStopsIds,
         'limit': limit.toString(),
-        'start_time': startTime,
+        'start_dt': startDt.toIso8601String(),
         'arr_stops_ids': arrStopsIds,
         'direction': direction.toString(),
       });
-      const result = [
-        [
-          {
-            "id": 15107356,
-            "sched_arr_dt": "2023-11-25T12:30:00",
-            "sched_dep_dt": "2023-11-25T12:30:00",
-            "orig_dep_date": "2023-11-25",
-            "platform": "",
-            "orig_id": "6084",
-            "dest_text": "FAVARO",
-            "number": 39721,
-            "route_name": "T1",
-            "source": "aut",
-            "stop_id": "aut_6022"
-          }
-        ]
-      ];
+          const result = [
+            [
+              {
+                "id": 15107356,
+                "sched_arr_dt": "2023-11-25T12:30:00",
+                "sched_dep_dt": "2023-11-25T12:30:00",
+                "orig_dep_date": "2023-11-25",
+                "platform": "",
+                "orig_id": "6084",
+                "dest_text": "FAVARO",
+                "number": 39721,
+                "route_name": "T1",
+                "source": "aut",
+                "stop_id": "aut_6022"
+              }
+            ]
+          ];
 
-      when(client.get(uri))
-          .thenAnswer((_) async => http.Response(jsonEncode(result), 200));
+          when(client.get(uri))
+              .thenAnswer((_) async => http.Response(jsonEncode(result), 200));
 
-      expect(
-          await getStopTimes(client, depStopsIds, source, day, startTime,
-              offset, limit, arrStopsIds),
-          isA<List<List<StopTime>>>());
-    });
+          expect(
+              await getStopTimes(
+              client, depStopsIds, source, startDt, offset, limit, arrStopsIds),
+              isA<List<List<StopTime>>>());
+        });
   });
 }

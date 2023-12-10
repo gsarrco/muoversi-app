@@ -71,13 +71,13 @@ void main() {
       final Offset offset = createOffset(stopTimes, 1);
       expect(offset.direction, 1);
       expect(offset.stopTimesIds, [15099717, 15106272]);
-      expect(offset.time, '12:34');
+      expect(offset.time, DateTime.parse('2023-11-25T12:34:00'));
     });
     test('createOffset for direction -1', () {
       final Offset offset = createOffset(stopTimes, -1);
       expect(offset.direction, -1);
       expect(offset.stopTimesIds, [15124762]);
-      expect(offset.time, '12:30');
+      expect(offset.time, DateTime.parse('2023-11-25T12:30:00'));
     });
     test('createOffset for direction 0 throws exception', () {
       expect(() => createOffset(stopTimes, 0), throwsException);
