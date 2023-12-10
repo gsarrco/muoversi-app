@@ -26,8 +26,7 @@ Future<List<List<StopTime>>> getStopTimes(
     http.Client client,
     String depStopsIds,
     String source,
-    String date,
-    String startTime,
+    DateTime startDt,
     Offset? offset,
     int limit,
     String? arrStopsIds) async {
@@ -37,17 +36,16 @@ Future<List<List<StopTime>>> getStopTimes(
   int direction = 1;
   if (offset != null && offset.direction != 0) {
     offsetByStopsIds = offset.stopTimesIds?.join(',');
-    startTime = offset.time!;
+    startDt = offset.time!;
     direction = offset.direction;
   }
 
   final uri = Uri.parse("$baseApiUrl/stop_times").replace(queryParameters: {
     'dep_stops_ids': depStopsIds,
     'source': source,
-    'day': date,
     'offset_by_ids': offsetByStopsIds,
     'limit': limit.toString(),
-    'start_time': startTime,
+    'start_dt': startDt.toIso8601String(),
     'arr_stops_ids': arrStopsIds,
     'direction': direction.toString(),
   });
