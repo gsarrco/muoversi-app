@@ -12,7 +12,6 @@ Future<List<Station>> searchStations(
   final baseApiUrl = dotenv.env['BASE_API_URL'];
   query = Uri.encodeComponent(query);
   final url = "$baseApiUrl/search/stations?q=$query&limit=$limit";
-  print(url);
   final response = await client.get(Uri.parse(url));
   if (response.statusCode == 200) {
     Iterable l = json.decode(utf8.decode(response.bodyBytes));
