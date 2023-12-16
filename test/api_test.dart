@@ -40,6 +40,38 @@ void main() async {
 
       expect(await searchStations(client, query, limit), isA<List<Station>>());
     });
+    test('returns only treni stations and exclude Venezia Mestre', () async {
+      const query = 'Venezia';
+      const limit = 1;
+      final baseApiUrl = dotenv.env['BASE_API_URL'];
+      const onlySource = 'treni';
+      const List<String> hideIds = ['S02589'];
+
+      final uri =
+          Uri.parse("$baseApiUrl/search/stations").replace(queryParameters: {
+        'q': query,
+        'limit': limit.toString(),
+        'only_source': onlySource,
+        'hide_ids': hideIds.join(','),
+      });
+
+      const result = [
+        {
+          "id": "S02593",
+          "name": "Venezia Santa Lucia",
+          "lat": 45.441397,
+          "lon": 12.320462,
+          "source": "treni",
+          "ids": "S02593"
+        }
+      ];
+
+      when(client.get(uri))
+          .thenAnswer((_) async => http.Response(jsonEncode(result), 200));
+
+      expect(await searchStations(client, query, limit, onlySource, hideIds),
+          isA<List<Station>>());
+    });
   });
 
   group('getStopTimes', () {
@@ -70,31 +102,31 @@ void main() async {
         'arr_stops_ids': arrStopsIds,
         'direction': direction.toString(),
       });
-          const result = [
-            [
-              {
-                "id": 15107356,
-                "sched_arr_dt": "2023-11-25T12:30:00",
-                "sched_dep_dt": "2023-11-25T12:30:00",
-                "orig_dep_date": "2023-11-25",
-                "platform": "",
-                "orig_id": "6084",
-                "dest_text": "FAVARO",
-                "number": 39721,
-                "route_name": "T1",
-                "source": "aut",
-                "stop_id": "aut_6022"
-              }
-            ]
-          ];
+      const result = [
+        [
+          {
+            "id": 15107356,
+            "sched_arr_dt": "2023-11-25T12:30:00",
+            "sched_dep_dt": "2023-11-25T12:30:00",
+            "orig_dep_date": "2023-11-25",
+            "platform": "",
+            "orig_id": "6084",
+            "dest_text": "FAVARO",
+            "number": 39721,
+            "route_name": "T1",
+            "source": "aut",
+            "stop_id": "aut_6022"
+          }
+        ]
+      ];
 
-          when(client.get(uri))
-              .thenAnswer((_) async => http.Response(jsonEncode(result), 200));
+      when(client.get(uri))
+          .thenAnswer((_) async => http.Response(jsonEncode(result), 200));
 
-          expect(
-              await getStopTimes(
+      expect(
+          await getStopTimes(
               client, depStopsIds, source, startDt, offset, limit, arrStopsIds),
-              isA<List<List<StopTime>>>());
-        });
+          isA<List<List<StopTime>>>());
+    });
   });
 }
