@@ -7,6 +7,7 @@ import 'package:muoversi/src/helpers/offset.dart';
 import 'package:muoversi/src/models/offset.dart' as stop_time_offset;
 import 'package:muoversi/src/models/station.dart';
 import 'package:muoversi/src/models/stop_time.dart';
+import 'package:muoversi/src/search_stations/station_search_widget.dart';
 import 'package:rxdart/rxdart.dart';
 
 class StationDetailsView extends StatefulWidget {
@@ -28,6 +29,7 @@ class _StationDetailsViewState extends State<StationDetailsView> {
   final int limit = 12;
   stop_time_offset.Offset? minusOffset = stop_time_offset.Offset(direction: 0);
   stop_time_offset.Offset? plusOffset = stop_time_offset.Offset(direction: 0);
+  Station? arrivalStation;
 
   @override
   void initState() {
@@ -60,7 +62,7 @@ class _StationDetailsViewState extends State<StationDetailsView> {
     }
 
     getStopTimes(http.Client(), widget.station.ids, widget.station.source,
-            startDt, offset, limit, null)
+            startDt, offset, limit, arrivalStation?.ids)
         .then((newStopTimesList) {
       final newStopTimes = newStopTimesList.map((e) => e[0]).toList();
 
@@ -99,12 +101,29 @@ class _StationDetailsViewState extends State<StationDetailsView> {
         plusOffset = null;
       }
 
-      if (direction == -1) {
-        _stopTimesController.add(newStopTimes + _stopTimesController.value);
-      } else {
-        _stopTimesController.add(_stopTimesController.value + newStopTimes);
+      switch (direction) {
+        case 0:
+          _stopTimesController.value = newStopTimes;
+          break;
+        case -1:
+          _stopTimesController.add(newStopTimes + _stopTimesController.value);
+          break;
+        case 1:
+          _stopTimesController.add(_stopTimesController.value + newStopTimes);
+          break;
       }
     });
+  }
+
+  void onArrivalStationSelected(Station station) {
+    setState(() {
+      arrivalStation = station;
+      minusOffset = stop_time_offset.Offset(direction: 0);
+      plusOffset = stop_time_offset.Offset(direction: 0);
+    });
+    updateStopTimes(0);
+    _scrollController.animateTo(0,
+        duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
   }
 
   @override
@@ -116,25 +135,45 @@ class _StationDetailsViewState extends State<StationDetailsView> {
 
   @override
   Widget build(BuildContext context) {
+    String title = widget.station.name;
+
+    if (arrivalStation != null) {
+      title += ' > ${arrivalStation!.name}';
+    }
+
     return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.station.name),
-        ),
-        body: (minusOffset != null)
-            ? CustomMaterialIndicator(
-                onRefresh: () async {
-                  updateStopTimes(-1);
-                },
-                indicatorBuilder: (build, controller) {
-                  return const Icon(
-                    Icons.arrow_upward,
-                    color: Colors.blue,
-                    size: 30,
-                  );
-                },
-                child: _buildListView(),
-              )
-            : _buildListView());
+      appBar: AppBar(
+        title: Text(title),
+      ),
+      body: Column(children: [
+        if (arrivalStation == null)
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 250),
+            child: StationSearchWidget(
+                resultCount: 3,
+                onStationSelected: onArrivalStationSelected,
+                onlySource: widget.station.source,
+                hideIds: [widget.station.id],
+                scrollController: _scrollController),
+          ),
+        Expanded(
+            child: (minusOffset != null)
+                ? CustomMaterialIndicator(
+                    onRefresh: () async {
+                      updateStopTimes(-1);
+                    },
+                    indicatorBuilder: (build, controller) {
+                      return const Icon(
+                        Icons.arrow_upward,
+                        color: Colors.blue,
+                        size: 30,
+                      );
+                    },
+                    child: _buildListView(),
+                  )
+                : _buildListView()),
+      ]),
+    );
   }
 
   bool isSameDay(DateTime date1, DateTime date2) {
