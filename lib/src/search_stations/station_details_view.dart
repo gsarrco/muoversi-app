@@ -24,7 +24,7 @@ class StationDetailsView extends StatefulWidget {
 }
 
 class _StationDetailsViewState extends State<StationDetailsView> {
-  late BehaviorSubject<List<StopTime>> _stopTimesController;
+  late BehaviorSubject<List<List<StopTime>>> _stopTimesController;
   late ScrollController _scrollController;
   final int limit = 12;
   stop_time_offset.Offset? minusOffset = stop_time_offset.Offset(direction: 0);
@@ -34,7 +34,7 @@ class _StationDetailsViewState extends State<StationDetailsView> {
   @override
   void initState() {
     super.initState();
-    _stopTimesController = BehaviorSubject<List<StopTime>>.seeded([]);
+    _stopTimesController = BehaviorSubject<List<List<StopTime>>>.seeded([]);
     _scrollController = ScrollController();
 
     updateStopTimes(0);
@@ -64,52 +64,54 @@ class _StationDetailsViewState extends State<StationDetailsView> {
     getStopTimes(http.Client(), widget.station.ids, widget.station.source,
             startDt, offset, limit, arrivalStation?.ids)
         .then((newStopTimesList) {
-      final newStopTimes = newStopTimesList.map((e) => e[0]).toList();
+      final newDepStopTimes = newStopTimesList.map((e) => e[0]).toList();
 
       switch (direction) {
         case 0:
-          if (newStopTimes.isEmpty) {
+          if (newDepStopTimes.isEmpty) {
             minusOffset = null;
           } else {
-            minusOffset = createOffset(newStopTimes, -1);
+            minusOffset = createOffset(newDepStopTimes, -1);
           }
 
-          if (newStopTimes.length < limit) {
+          if (newDepStopTimes.length < limit) {
             plusOffset = null;
           } else {
-            plusOffset = createOffset(newStopTimes, 1);
+            plusOffset = createOffset(newDepStopTimes, 1);
           }
           break;
         case -1:
-          if (newStopTimes.length < limit) {
+          if (newDepStopTimes.length < limit) {
             minusOffset = null;
           } else {
-            minusOffset = createOffset(newStopTimes, -1);
+            minusOffset = createOffset(newDepStopTimes, -1);
           }
           break;
         case 1:
-          if (newStopTimes.length < limit) {
+          if (newDepStopTimes.length < limit) {
             plusOffset = null;
           } else {
-            plusOffset = createOffset(newStopTimes, 1);
+            plusOffset = createOffset(newDepStopTimes, 1);
           }
           break;
       }
 
-      if (newStopTimes.isEmpty) {
+      if (newDepStopTimes.isEmpty) {
         minusOffset = null;
         plusOffset = null;
       }
 
       switch (direction) {
         case 0:
-          _stopTimesController.value = newStopTimes;
+          _stopTimesController.value = newStopTimesList;
           break;
         case -1:
-          _stopTimesController.add(newStopTimes + _stopTimesController.value);
+          _stopTimesController
+              .add(newStopTimesList + _stopTimesController.value);
           break;
         case 1:
-          _stopTimesController.add(_stopTimesController.value + newStopTimes);
+          _stopTimesController
+              .add(_stopTimesController.value + newStopTimesList);
           break;
       }
     });
@@ -182,31 +184,31 @@ class _StationDetailsViewState extends State<StationDetailsView> {
         date1.day == date2.day;
   }
 
-  Widget getListTile(StopTime stopTime) {
+  Widget getListTile(StopTime depStopTime) {
     return ListTile(
       leading: Text(
-        DateFormat('HH:mm').format(stopTime.schedDepDt!),
+        DateFormat('HH:mm').format(depStopTime.schedDepDt!),
         style: const TextStyle(
           fontSize: 23,
           fontWeight: FontWeight.bold,
         ),
       ),
       title: Text(
-        '${stopTime.routeName} ${stopTime.destText}',
+        '${depStopTime.routeName} ${depStopTime.destText}',
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
       ),
       subtitle: Row(
         children: [
           Expanded(
             child: Text(
-              '#${stopTime.number}',
+              '#${depStopTime.number}',
               textAlign: TextAlign.left,
             ),
           ),
-          if (stopTime.platform != null && stopTime.platform!.isNotEmpty)
+          if (depStopTime.platform != null && depStopTime.platform!.isNotEmpty)
             Expanded(
               child: Text(
-                'Platform ${stopTime.platform}',
+                'Platform ${depStopTime.platform}',
                 textAlign: TextAlign.right,
               ),
             ),
@@ -217,46 +219,52 @@ class _StationDetailsViewState extends State<StationDetailsView> {
   }
 
   Widget _buildListView() {
-    return StreamBuilder<List<StopTime>>(
+    return StreamBuilder<List<List<StopTime>>>(
       stream: _stopTimesController.stream,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          final stopTimes = snapshot.data!;
+          final stopTimesList = snapshot.data!;
 
           return ListView.builder(
             restorationId: 'StationDetailsView',
-            itemCount: stopTimes.length,
+            itemCount: stopTimesList.length,
             physics: const AlwaysScrollableScrollPhysics(),
             controller: _scrollController,
             itemBuilder: (BuildContext context, int index) {
-              final stopTime = stopTimes[index];
-              final prevStopTime = index > 0 ? stopTimes[index - 1] : null;
-              if ((index == stopTimes.length - 1 && plusOffset != null)) {
+              final StopTime depStopTime = stopTimesList[index][0];
+              final StopTime? prevStopTime =
+                  index > 0 ? stopTimesList[index - 1][0] : null;
+              final StopTime? arrStopTime = stopTimesList[index].length > 1
+                  ? stopTimesList[index][1]
+                  : null;
+
+              if ((index == stopTimesList.length - 1 && plusOffset != null)) {
                 return const Center(
                   child: CircularProgressIndicator(),
                 );
               } else {
                 if (prevStopTime == null ||
                     !isSameDay(
-                        stopTime.schedDepDt!, prevStopTime.schedDepDt!)) {
+                        depStopTime.schedDepDt!, prevStopTime.schedDepDt!)) {
                   return Column(
                     children: [
                       const Divider(indent: 0),
                       Padding(
                         padding: const EdgeInsets.only(top: 4, bottom: 8),
                         child: Text(
-                          DateFormat('EEEE d MMM').format(stopTime.schedDepDt!),
+                          DateFormat('EEEE d MMM')
+                              .format(depStopTime.schedDepDt!),
                           style: const TextStyle(
                               color: Colors.blue,
                               fontWeight: FontWeight.bold,
                               fontSize: 18),
                         ),
                       ),
-                      getListTile(stopTime),
+                      getListTile(depStopTime),
                     ],
                   );
                 } else {
-                  return getListTile(stopTime);
+                  return getListTile(depStopTime);
                 }
               }
             },
