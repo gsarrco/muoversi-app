@@ -184,14 +184,52 @@ class _StationDetailsViewState extends State<StationDetailsView> {
         date1.day == date2.day;
   }
 
-  Widget getListTile(StopTime depStopTime) {
+  Widget getListTile(StopTime depStopTime, StopTime? arrStopTime) {
+    String? duration;
+    if (depStopTime.schedDepDt != null && arrStopTime?.schedArrDt != null) {
+      final difference = arrStopTime!.schedArrDt!
+          .difference(depStopTime.schedDepDt!)
+          .inMinutes;
+      final hours = difference ~/ 60;
+      final minutes = difference % 60;
+      duration = (hours > 0) ? '${hours}h ${minutes}m' : '${minutes}m';
+    }
+
+    String platform = depStopTime.platform ?? '';
+    if (arrStopTime != null &&
+        arrStopTime.platform != null &&
+        arrStopTime.platform!.isNotEmpty) {
+      platform += ' > ${arrStopTime.platform}';
+    }
+    if (platform.isNotEmpty) {
+      platform = 'Platform $platform';
+    }
+
     return ListTile(
-      leading: Text(
-        DateFormat('HH:mm').format(depStopTime.schedDepDt!),
-        style: const TextStyle(
-          fontSize: 23,
-          fontWeight: FontWeight.bold,
-        ),
+      leading: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                DateFormat('HH:mm').format(depStopTime.schedDepDt!),
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 23),
+              ),
+              if (arrStopTime != null)
+                Text(
+                  ' > ${DateFormat('HH:mm').format(arrStopTime.schedArrDt!)}',
+                  style: const TextStyle(fontSize: 19),
+                ),
+            ],
+          ),
+          if (duration != null)
+            Text(
+              'duration: $duration',
+              style: const TextStyle(fontSize: 15),
+            ),
+        ],
       ),
       title: Text(
         '${depStopTime.routeName} ${depStopTime.destText}',
@@ -260,11 +298,11 @@ class _StationDetailsViewState extends State<StationDetailsView> {
                               fontSize: 18),
                         ),
                       ),
-                      getListTile(depStopTime),
+                      getListTile(depStopTime, arrStopTime),
                     ],
                   );
                 } else {
-                  return getListTile(depStopTime);
+                  return getListTile(depStopTime, arrStopTime);
                 }
               }
             },
