@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'search_stations/station_details_view.dart';
 import 'search_stations/search_stations_list_view.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
+import 'station_details/station_details_view.dart';
 
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {

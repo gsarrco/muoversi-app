@@ -8,7 +8,7 @@ import 'package:muoversi/src/models/offset.dart' as stop_time_offset;
 import 'package:muoversi/src/models/station.dart';
 import 'package:muoversi/src/models/stop_time.dart';
 import 'package:muoversi/src/search_stations/station_search_widget.dart';
-import 'package:muoversi/src/search_stations/stop_times_list_tile.dart';
+import 'package:muoversi/src/station_details/stop_times_list_tile.dart';
 import 'package:rxdart/rxdart.dart';
 
 class StationDetailsView extends StatefulWidget {
