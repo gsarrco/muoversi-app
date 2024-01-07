@@ -8,6 +8,7 @@ import 'package:muoversi/src/models/offset.dart' as stop_time_offset;
 import 'package:muoversi/src/models/station.dart';
 import 'package:muoversi/src/models/stop_time.dart';
 import 'package:muoversi/src/search_stations/station_search_widget.dart';
+import 'package:muoversi/src/search_stations/stop_times_list_tile.dart';
 import 'package:rxdart/rxdart.dart';
 
 class StationDetailsView extends StatefulWidget {
@@ -184,78 +185,6 @@ class _StationDetailsViewState extends State<StationDetailsView> {
         date1.day == date2.day;
   }
 
-  Widget getListTile(StopTime depStopTime, StopTime? arrStopTime) {
-    String? duration;
-    if (depStopTime.schedDepDt != null && arrStopTime?.schedArrDt != null) {
-      final difference = arrStopTime!.schedArrDt!
-          .difference(depStopTime.schedDepDt!)
-          .inMinutes;
-      final hours = difference ~/ 60;
-      final minutes = difference % 60;
-      duration = (hours > 0) ? '${hours}h ${minutes}m' : '${minutes}m';
-    }
-
-    String platform = depStopTime.platform ?? '';
-    if (arrStopTime != null &&
-        arrStopTime.platform != null &&
-        arrStopTime.platform!.isNotEmpty) {
-      platform += ' > ${arrStopTime.platform}';
-    }
-    if (platform.isNotEmpty) {
-      platform = 'Platform $platform';
-    }
-
-    return ListTile(
-      leading: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                DateFormat('HH:mm').format(depStopTime.schedDepDt!),
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 23),
-              ),
-              if (arrStopTime != null)
-                Text(
-                  ' > ${DateFormat('HH:mm').format(arrStopTime.schedArrDt!)}',
-                  style: const TextStyle(fontSize: 19),
-                ),
-            ],
-          ),
-          if (duration != null)
-            Text(
-              'duration: $duration',
-              style: const TextStyle(fontSize: 15),
-            ),
-        ],
-      ),
-      title: Text(
-        '${depStopTime.routeName} ${depStopTime.destText}',
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
-      ),
-      subtitle: Row(
-        children: [
-          Expanded(
-            child: Text(
-              '#${depStopTime.number}',
-              textAlign: TextAlign.left,
-            ),
-          ),
-          if (depStopTime.platform != null && depStopTime.platform!.isNotEmpty)
-            Expanded(
-              child: Text(
-                'Platform ${depStopTime.platform}',
-                textAlign: TextAlign.right,
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildListView() {
     return StreamBuilder<List<List<StopTime>>>(
       stream: _stopTimesController.stream,
@@ -298,11 +227,13 @@ class _StationDetailsViewState extends State<StationDetailsView> {
                               fontSize: 18),
                         ),
                       ),
-                      getListTile(depStopTime, arrStopTime),
+                      StopTimesListTile(
+                          depStopTime: depStopTime, arrStopTime: arrStopTime),
                     ],
                   );
                 } else {
-                  return getListTile(depStopTime, arrStopTime);
+                  return StopTimesListTile(
+                      depStopTime: depStopTime, arrStopTime: arrStopTime);
                 }
               }
             },
