@@ -8,11 +8,26 @@ import '../models/offset.dart';
 import '../models/station.dart';
 
 Future<List<Station>> searchStations(
-    http.Client client, String query, int limit) async {
+    http.Client client, String query, int limit,
+    [String? onlySource, List<String>? hideIds]) async {
   final baseApiUrl = dotenv.env['BASE_API_URL'];
-  query = Uri.encodeComponent(query);
-  final url = "$baseApiUrl/search/stations?q=$query&limit=$limit";
-  final response = await client.get(Uri.parse(url));
+
+  Map<String, String> queryParameters = {
+    'q': query,
+    'limit': limit.toString(),
+  };
+
+  if (onlySource != null) {
+    queryParameters['only_source'] = onlySource;
+  }
+  if (hideIds != null) {
+    queryParameters['hide_ids'] = hideIds.join(',');
+  }
+
+  final uri = Uri.parse("$baseApiUrl/search/stations")
+      .replace(queryParameters: queryParameters);
+
+  final response = await client.get(uri);
   if (response.statusCode == 200) {
     Iterable l = json.decode(utf8.decode(response.bodyBytes));
     return List<Station>.from(l.map((model) => Station.fromJson(model)));

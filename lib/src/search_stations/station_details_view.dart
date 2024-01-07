@@ -7,6 +7,8 @@ import 'package:muoversi/src/helpers/offset.dart';
 import 'package:muoversi/src/models/offset.dart' as stop_time_offset;
 import 'package:muoversi/src/models/station.dart';
 import 'package:muoversi/src/models/stop_time.dart';
+import 'package:muoversi/src/search_stations/station_search_widget.dart';
+import 'package:muoversi/src/search_stations/stop_times_list_tile.dart';
 import 'package:rxdart/rxdart.dart';
 
 class StationDetailsView extends StatefulWidget {
@@ -23,16 +25,17 @@ class StationDetailsView extends StatefulWidget {
 }
 
 class _StationDetailsViewState extends State<StationDetailsView> {
-  late BehaviorSubject<List<StopTime>> _stopTimesController;
+  late BehaviorSubject<List<List<StopTime>>> _stopTimesController;
   late ScrollController _scrollController;
   final int limit = 12;
   stop_time_offset.Offset? minusOffset = stop_time_offset.Offset(direction: 0);
   stop_time_offset.Offset? plusOffset = stop_time_offset.Offset(direction: 0);
+  Station? arrivalStation;
 
   @override
   void initState() {
     super.initState();
-    _stopTimesController = BehaviorSubject<List<StopTime>>.seeded([]);
+    _stopTimesController = BehaviorSubject<List<List<StopTime>>>.seeded([]);
     _scrollController = ScrollController();
 
     updateStopTimes(0);
@@ -60,51 +63,70 @@ class _StationDetailsViewState extends State<StationDetailsView> {
     }
 
     getStopTimes(http.Client(), widget.station.ids, widget.station.source,
-            startDt, offset, limit, null)
+            startDt, offset, limit, arrivalStation?.ids)
         .then((newStopTimesList) {
-      final newStopTimes = newStopTimesList.map((e) => e[0]).toList();
+      final newDepStopTimes = newStopTimesList.map((e) => e[0]).toList();
 
       switch (direction) {
         case 0:
-          if (newStopTimes.isEmpty) {
+          if (newDepStopTimes.isEmpty) {
             minusOffset = null;
           } else {
-            minusOffset = createOffset(newStopTimes, -1);
+            minusOffset = createOffset(newDepStopTimes, -1);
           }
 
-          if (newStopTimes.length < limit) {
+          if (newDepStopTimes.length < limit) {
             plusOffset = null;
           } else {
-            plusOffset = createOffset(newStopTimes, 1);
+            plusOffset = createOffset(newDepStopTimes, 1);
           }
           break;
         case -1:
-          if (newStopTimes.length < limit) {
+          if (newDepStopTimes.length < limit) {
             minusOffset = null;
           } else {
-            minusOffset = createOffset(newStopTimes, -1);
+            minusOffset = createOffset(newDepStopTimes, -1);
           }
           break;
         case 1:
-          if (newStopTimes.length < limit) {
+          if (newDepStopTimes.length < limit) {
             plusOffset = null;
           } else {
-            plusOffset = createOffset(newStopTimes, 1);
+            plusOffset = createOffset(newDepStopTimes, 1);
           }
           break;
       }
 
-      if (newStopTimes.isEmpty) {
+      if (newDepStopTimes.isEmpty) {
         minusOffset = null;
         plusOffset = null;
       }
 
-      if (direction == -1) {
-        _stopTimesController.add(newStopTimes + _stopTimesController.value);
-      } else {
-        _stopTimesController.add(_stopTimesController.value + newStopTimes);
+      switch (direction) {
+        case 0:
+          _stopTimesController.value = newStopTimesList;
+          break;
+        case -1:
+          _stopTimesController
+              .add(newStopTimesList + _stopTimesController.value);
+          break;
+        case 1:
+          _stopTimesController
+              .add(_stopTimesController.value + newStopTimesList);
+          break;
       }
     });
+  }
+
+  void onArrivalStationSelected(Station station) {
+    setState(() {
+      arrivalStation = station;
+      minusOffset = stop_time_offset.Offset(direction: 0);
+      plusOffset = stop_time_offset.Offset(direction: 0);
+    });
+    updateStopTimes(0);
+    _scrollController.animateTo(0,
+        duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
   }
 
   @override
@@ -116,25 +138,45 @@ class _StationDetailsViewState extends State<StationDetailsView> {
 
   @override
   Widget build(BuildContext context) {
+    String title = widget.station.name;
+
+    if (arrivalStation != null) {
+      title += ' > ${arrivalStation!.name}';
+    }
+
     return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.station.name),
-        ),
-        body: (minusOffset != null)
-            ? CustomMaterialIndicator(
-                onRefresh: () async {
-                  updateStopTimes(-1);
-                },
-                indicatorBuilder: (build, controller) {
-                  return const Icon(
-                    Icons.arrow_upward,
-                    color: Colors.blue,
-                    size: 30,
-                  );
-                },
-                child: _buildListView(),
-              )
-            : _buildListView());
+      appBar: AppBar(
+        title: Text(title),
+      ),
+      body: Column(children: [
+        if (arrivalStation == null)
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 250),
+            child: StationSearchWidget(
+                resultCount: 3,
+                onStationSelected: onArrivalStationSelected,
+                onlySource: widget.station.source,
+                hideIds: [widget.station.id],
+                scrollController: _scrollController),
+          ),
+        Expanded(
+            child: (minusOffset != null)
+                ? CustomMaterialIndicator(
+                    onRefresh: () async {
+                      updateStopTimes(-1);
+                    },
+                    indicatorBuilder: (build, controller) {
+                      return const Icon(
+                        Icons.arrow_upward,
+                        color: Colors.blue,
+                        size: 30,
+                      );
+                    },
+                    child: _buildListView(),
+                  )
+                : _buildListView()),
+      ]),
+    );
   }
 
   bool isSameDay(DateTime date1, DateTime date2) {
@@ -143,81 +185,55 @@ class _StationDetailsViewState extends State<StationDetailsView> {
         date1.day == date2.day;
   }
 
-  Widget getListTile(StopTime stopTime) {
-    return ListTile(
-      leading: Text(
-        DateFormat('HH:mm').format(stopTime.schedDepDt!),
-        style: const TextStyle(
-          fontSize: 23,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      title: Text(
-        '${stopTime.routeName} ${stopTime.destText}',
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
-      ),
-      subtitle: Row(
-        children: [
-          Expanded(
-            child: Text(
-              '#${stopTime.number}',
-              textAlign: TextAlign.left,
-            ),
-          ),
-          if (stopTime.platform != null && stopTime.platform!.isNotEmpty)
-            Expanded(
-              child: Text(
-                'Platform ${stopTime.platform}',
-                textAlign: TextAlign.right,
-              ),
-            ),
-        ],
-      ),
-      isThreeLine: true,
-    );
-  }
-
   Widget _buildListView() {
-    return StreamBuilder<List<StopTime>>(
+    return StreamBuilder<List<List<StopTime>>>(
       stream: _stopTimesController.stream,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          final stopTimes = snapshot.data!;
+          final stopTimesList = snapshot.data!;
 
           return ListView.builder(
             restorationId: 'StationDetailsView',
-            itemCount: stopTimes.length,
+            itemCount: stopTimesList.length,
             physics: const AlwaysScrollableScrollPhysics(),
             controller: _scrollController,
             itemBuilder: (BuildContext context, int index) {
-              final stopTime = stopTimes[index];
-              final prevStopTime = index > 0 ? stopTimes[index - 1] : null;
-              if ((index == stopTimes.length - 1 && plusOffset != null)) {
+              final StopTime depStopTime = stopTimesList[index][0];
+              final StopTime? prevStopTime =
+                  index > 0 ? stopTimesList[index - 1][0] : null;
+              final StopTime? arrStopTime = stopTimesList[index].length > 1
+                  ? stopTimesList[index][1]
+                  : null;
+
+              if ((index == stopTimesList.length - 1 && plusOffset != null)) {
                 return const Center(
                   child: CircularProgressIndicator(),
                 );
               } else {
                 if (prevStopTime == null ||
                     !isSameDay(
-                        stopTime.schedDepDt!, prevStopTime.schedDepDt!)) {
+                        depStopTime.schedDepDt!, prevStopTime.schedDepDt!)) {
                   return Column(
                     children: [
                       const Divider(indent: 0),
                       Padding(
                         padding: const EdgeInsets.only(top: 4, bottom: 8),
                         child: Text(
-                          DateFormat('EEEE d MMM').format(stopTime.schedDepDt!),
+                          DateFormat('EEEE d MMM')
+                              .format(depStopTime.schedDepDt!),
                           style: const TextStyle(
                               color: Colors.blue,
                               fontWeight: FontWeight.bold,
                               fontSize: 18),
                         ),
                       ),
-                      getListTile(stopTime),
+                      StopTimesListTile(
+                          depStopTime: depStopTime, arrStopTime: arrStopTime),
                     ],
                   );
                 } else {
-                  return getListTile(stopTime);
+                  return StopTimesListTile(
+                      depStopTime: depStopTime, arrStopTime: arrStopTime);
                 }
               }
             },
