@@ -162,7 +162,7 @@ class _StationDetailsViewState extends State<StationDetailsView> {
             child: (minusOffset != null)
                 ? CustomMaterialIndicator(
                     onRefresh: () async {
-                      updateStopTimes(-1);
+                      updateStopTimes(-1, 5);
                     },
                     indicatorBuilder: (build, controller) {
                       return const Icon(
