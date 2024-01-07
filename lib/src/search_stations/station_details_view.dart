@@ -207,6 +207,7 @@ class _StationDetailsViewState extends State<StationDetailsView> {
 
     return ListTile(
       leading: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -252,7 +253,6 @@ class _StationDetailsViewState extends State<StationDetailsView> {
             ),
         ],
       ),
-      isThreeLine: true,
     );
   }
 
