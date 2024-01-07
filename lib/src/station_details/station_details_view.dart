@@ -27,7 +27,6 @@ class StationDetailsView extends StatefulWidget {
 class _StationDetailsViewState extends State<StationDetailsView> {
   late BehaviorSubject<List<List<StopTime>>> _stopTimesController;
   late ScrollController _scrollController;
-  final int limit = 12;
   stop_time_offset.Offset? minusOffset = stop_time_offset.Offset(direction: 0);
   stop_time_offset.Offset? plusOffset = stop_time_offset.Offset(direction: 0);
   Station? arrivalStation;
@@ -51,7 +50,7 @@ class _StationDetailsViewState extends State<StationDetailsView> {
     }
   }
 
-  void updateStopTimes(int direction) {
+  void updateStopTimes(int direction, [int limit = 12]) {
     DateTime startDt = DateTime.now();
 
     stop_time_offset.Offset? offset;
