@@ -3,7 +3,7 @@ import 'package:muoversi/src/models/station.dart';
 import 'package:muoversi/src/search_stations/station_search_widget.dart';
 
 import '../settings/settings_view.dart';
-import 'station_details_view.dart';
+import '../station_details/station_details_view.dart';
 
 class SearchStationsListView extends StatelessWidget {
   const SearchStationsListView({Key? key}) : super(key: key);
