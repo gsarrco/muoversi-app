@@ -9,7 +9,7 @@ class StationSearchWidget extends StatefulWidget {
   final int resultCount;
   final Function(Station) onStationSelected;
   final String? onlySource;
-  final List<String>? hideIds;
+  final Station? depStation;
   final ScrollController? scrollController;
 
   const StationSearchWidget(
@@ -17,7 +17,7 @@ class StationSearchWidget extends StatefulWidget {
       required this.resultCount,
       required this.onStationSelected,
       this.onlySource,
-      this.hideIds,
+      this.depStation,
       this.scrollController})
       : super(key: key);
 
@@ -45,8 +45,10 @@ class _StationSearchWidgetState extends State<StationSearchWidget> {
   }
 
   Future<List<Station>> callApi(String query) {
-    return searchStations(http.Client(), query, widget.resultCount,
-        widget.onlySource, widget.hideIds);
+    List<String>? hideIds =
+        widget.depStation != null ? [widget.depStation!.id] : null;
+    return searchStations(
+        http.Client(), query, widget.resultCount, widget.onlySource, hideIds);
   }
 
   void setShowStations(bool show) {

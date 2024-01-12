@@ -155,7 +155,7 @@ class _StationDetailsViewState extends State<StationDetailsView> {
                 resultCount: 3,
                 onStationSelected: onArrivalStationSelected,
                 onlySource: widget.station.source,
-                hideIds: [widget.station.id],
+                depStation: widget.station,
                 scrollController: _scrollController),
           ),
         Expanded(
