@@ -32,17 +32,12 @@ class _StationDetailsViewState extends State<StationDetailsView> {
   late ScrollController _scrollController;
   stop_time_offset.Offset? minusOffset = stop_time_offset.Offset(direction: 0);
   stop_time_offset.Offset? plusOffset = stop_time_offset.Offset(direction: 0);
-  Station? arrivalStation;
 
   @override
   void initState() {
     super.initState();
     _stopTimesController = BehaviorSubject<List<List<StopTime>>>.seeded([]);
     _scrollController = ScrollController();
-
-    setState(() {
-      arrivalStation = widget.arrStation;
-    });
 
     updateStopTimes(0);
 
@@ -69,7 +64,7 @@ class _StationDetailsViewState extends State<StationDetailsView> {
     }
 
     getStopTimes(http.Client(), widget.depStation.ids, widget.depStation.source,
-            startDt, offset, limit, arrivalStation?.ids)
+            startDt, offset, limit, widget.arrStation?.ids)
         .then((newStopTimesList) {
       final newDepStopTimes = newStopTimesList.map((e) => e[0]).toList();
 
@@ -124,17 +119,6 @@ class _StationDetailsViewState extends State<StationDetailsView> {
     });
   }
 
-  void onArrivalStationSelected(Station station) {
-    setState(() {
-      arrivalStation = station;
-      minusOffset = stop_time_offset.Offset(direction: 0);
-      plusOffset = stop_time_offset.Offset(direction: 0);
-    });
-    updateStopTimes(0);
-    _scrollController.animateTo(0,
-        duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
-  }
-
   @override
   void dispose() {
     _stopTimesController.close();
@@ -146,8 +130,8 @@ class _StationDetailsViewState extends State<StationDetailsView> {
   Widget build(BuildContext context) {
     String title = widget.depStation.name;
 
-    if (arrivalStation != null) {
-      title += ' > ${arrivalStation!.name}';
+    if (widget.arrStation != null) {
+      title += ' > ${widget.arrStation!.name}';
     }
 
     return Scaffold(
@@ -155,12 +139,11 @@ class _StationDetailsViewState extends State<StationDetailsView> {
         title: Text(title),
       ),
       body: Column(children: [
-        if (arrivalStation == null)
+        if (widget.arrStation == null)
           ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 250),
             child: StationSearchWidget(
                 resultCount: 3,
-                onStationSelected: onArrivalStationSelected,
                 onlySource: widget.depStation.source,
                 depStation: widget.depStation,
                 scrollController: _scrollController),
