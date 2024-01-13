@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'models/stations_details_arguments.dart';
 import 'search_stations/search_stations_list_view.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
@@ -70,9 +71,14 @@ class MyApp extends StatelessWidget {
                   case SettingsView.routeName:
                     return SettingsView(controller: settingsController);
                   case StationDetailsView.routeName:
-                    final stationMap =
+                    final json =
                         routeSettings.arguments as Map<String, dynamic>;
-                    return StationDetailsView(stationMap: stationMap);
+                    final stationDetailsArguments =
+                        StationDetailsArguments.fromJson(json);
+                    return StationDetailsView(
+                      depStation: stationDetailsArguments.depStation,
+                      arrStation: stationDetailsArguments.arrStation,
+                    );
                   case SearchStationsListView.routeName:
                   default:
                     return const SearchStationsListView();

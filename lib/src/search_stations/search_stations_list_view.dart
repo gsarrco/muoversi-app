@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:muoversi/src/models/station.dart';
+import 'package:muoversi/src/models/stations_details_arguments.dart';
 import 'package:muoversi/src/search_stations/station_search_widget.dart';
 
 import '../settings/settings_view.dart';
@@ -16,7 +17,7 @@ class SearchStationsListView extends StatelessWidget {
       Navigator.restorablePushNamed(
         context,
         StationDetailsView.routeName,
-        arguments: station.toJson(),
+        arguments: StationDetailsArguments(depStation: station).toJson(),
       );
     }
 

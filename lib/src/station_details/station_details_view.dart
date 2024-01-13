@@ -12,11 +12,14 @@ import 'package:muoversi/src/station_details/stop_times_list_tile.dart';
 import 'package:rxdart/rxdart.dart';
 
 class StationDetailsView extends StatefulWidget {
-  final Station station;
+  final Station depStation;
+  final Station? arrStation;
 
-  StationDetailsView({Key? key, required stationMap})
-      : station = Station.fromJson(stationMap),
-        super(key: key);
+  const StationDetailsView({
+    Key? key,
+    required this.depStation,
+    this.arrStation,
+  }) : super(key: key);
 
   static const routeName = '/station_details';
 
@@ -36,6 +39,10 @@ class _StationDetailsViewState extends State<StationDetailsView> {
     super.initState();
     _stopTimesController = BehaviorSubject<List<List<StopTime>>>.seeded([]);
     _scrollController = ScrollController();
+
+    setState(() {
+      arrivalStation = widget.arrStation;
+    });
 
     updateStopTimes(0);
 
@@ -61,7 +68,7 @@ class _StationDetailsViewState extends State<StationDetailsView> {
       offset = minusOffset;
     }
 
-    getStopTimes(http.Client(), widget.station.ids, widget.station.source,
+    getStopTimes(http.Client(), widget.depStation.ids, widget.depStation.source,
             startDt, offset, limit, arrivalStation?.ids)
         .then((newStopTimesList) {
       final newDepStopTimes = newStopTimesList.map((e) => e[0]).toList();
@@ -137,7 +144,7 @@ class _StationDetailsViewState extends State<StationDetailsView> {
 
   @override
   Widget build(BuildContext context) {
-    String title = widget.station.name;
+    String title = widget.depStation.name;
 
     if (arrivalStation != null) {
       title += ' > ${arrivalStation!.name}';
@@ -154,8 +161,8 @@ class _StationDetailsViewState extends State<StationDetailsView> {
             child: StationSearchWidget(
                 resultCount: 3,
                 onStationSelected: onArrivalStationSelected,
-                onlySource: widget.station.source,
-                depStation: widget.station,
+                onlySource: widget.depStation.source,
+                depStation: widget.depStation,
                 scrollController: _scrollController),
           ),
         Expanded(
