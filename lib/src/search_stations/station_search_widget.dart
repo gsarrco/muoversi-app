@@ -5,19 +5,20 @@ import 'package:http/http.dart' as http;
 import 'package:muoversi/src/helpers/api.dart';
 import 'package:muoversi/src/models/station.dart';
 
+import '../models/stations_details_arguments.dart';
+import '../station_details/station_details_view.dart';
+
 class StationSearchWidget extends StatefulWidget {
   final int resultCount;
-  final Function(Station) onStationSelected;
   final String? onlySource;
-  final List<String>? hideIds;
+  final Station? depStation;
   final ScrollController? scrollController;
 
   const StationSearchWidget(
       {Key? key,
       required this.resultCount,
-      required this.onStationSelected,
       this.onlySource,
-      this.hideIds,
+      this.depStation,
       this.scrollController})
       : super(key: key);
 
@@ -45,8 +46,10 @@ class _StationSearchWidgetState extends State<StationSearchWidget> {
   }
 
   Future<List<Station>> callApi(String query) {
-    return searchStations(http.Client(), query, widget.resultCount,
-        widget.onlySource, widget.hideIds);
+    List<String>? hideIds =
+        widget.depStation != null ? [widget.depStation!.id] : null;
+    return searchStations(
+        http.Client(), query, widget.resultCount, widget.onlySource, hideIds);
   }
 
   void setShowStations(bool show) {
@@ -69,6 +72,24 @@ class _StationSearchWidgetState extends State<StationSearchWidget> {
     _debounce?.cancel();
     widget.scrollController?.removeListener(_scrollListener);
     super.dispose();
+  }
+
+  void onStationSelected(Station station) {
+    final StationDetailsArguments stationDetailsArguments;
+    if (widget.depStation == null) {
+      stationDetailsArguments = StationDetailsArguments(depStation: station);
+    } else {
+      stationDetailsArguments = StationDetailsArguments(
+        depStation: widget.depStation!,
+        arrStation: station,
+      );
+    }
+
+    Navigator.restorablePushNamed(
+      context,
+      StationDetailsView.routeName,
+      arguments: stationDetailsArguments.toJson(),
+    );
   }
 
   @override
@@ -135,7 +156,7 @@ class _StationSearchWidgetState extends State<StationSearchWidget> {
                             child: Icon(sourceIcon, color: Colors.white),
                           ),
                           onTap: () {
-                            widget.onStationSelected(station);
+                            onStationSelected(station);
                           });
                     },
                   );

@@ -12,11 +12,14 @@ import 'package:muoversi/src/station_details/stop_times_list_tile.dart';
 import 'package:rxdart/rxdart.dart';
 
 class StationDetailsView extends StatefulWidget {
-  final Station station;
+  final Station depStation;
+  final Station? arrStation;
 
-  StationDetailsView({Key? key, required stationMap})
-      : station = Station.fromJson(stationMap),
-        super(key: key);
+  const StationDetailsView({
+    Key? key,
+    required this.depStation,
+    this.arrStation,
+  }) : super(key: key);
 
   static const routeName = '/station_details';
 
@@ -29,7 +32,6 @@ class _StationDetailsViewState extends State<StationDetailsView> {
   late ScrollController _scrollController;
   stop_time_offset.Offset? minusOffset = stop_time_offset.Offset(direction: 0);
   stop_time_offset.Offset? plusOffset = stop_time_offset.Offset(direction: 0);
-  Station? arrivalStation;
 
   @override
   void initState() {
@@ -61,8 +63,8 @@ class _StationDetailsViewState extends State<StationDetailsView> {
       offset = minusOffset;
     }
 
-    getStopTimes(http.Client(), widget.station.ids, widget.station.source,
-            startDt, offset, limit, arrivalStation?.ids)
+    getStopTimes(http.Client(), widget.depStation.ids, widget.depStation.source,
+            startDt, offset, limit, widget.arrStation?.ids)
         .then((newStopTimesList) {
       final newDepStopTimes = newStopTimesList.map((e) => e[0]).toList();
 
@@ -117,17 +119,6 @@ class _StationDetailsViewState extends State<StationDetailsView> {
     });
   }
 
-  void onArrivalStationSelected(Station station) {
-    setState(() {
-      arrivalStation = station;
-      minusOffset = stop_time_offset.Offset(direction: 0);
-      plusOffset = stop_time_offset.Offset(direction: 0);
-    });
-    updateStopTimes(0);
-    _scrollController.animateTo(0,
-        duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
-  }
-
   @override
   void dispose() {
     _stopTimesController.close();
@@ -137,10 +128,10 @@ class _StationDetailsViewState extends State<StationDetailsView> {
 
   @override
   Widget build(BuildContext context) {
-    String title = widget.station.name;
+    String title = widget.depStation.name;
 
-    if (arrivalStation != null) {
-      title += ' > ${arrivalStation!.name}';
+    if (widget.arrStation != null) {
+      title += ' > ${widget.arrStation!.name}';
     }
 
     return Scaffold(
@@ -148,14 +139,13 @@ class _StationDetailsViewState extends State<StationDetailsView> {
         title: Text(title),
       ),
       body: Column(children: [
-        if (arrivalStation == null)
+        if (widget.arrStation == null)
           ConstrainedBox(
             constraints: const BoxConstraints(maxHeight: 250),
             child: StationSearchWidget(
                 resultCount: 3,
-                onStationSelected: onArrivalStationSelected,
-                onlySource: widget.station.source,
-                hideIds: [widget.station.id],
+                onlySource: widget.depStation.source,
+                depStation: widget.depStation,
                 scrollController: _scrollController),
           ),
         Expanded(

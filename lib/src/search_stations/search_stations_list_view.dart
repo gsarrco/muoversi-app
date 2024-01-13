@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:muoversi/src/models/station.dart';
 import 'package:muoversi/src/search_stations/station_search_widget.dart';
 
 import '../settings/settings_view.dart';
-import '../station_details/station_details_view.dart';
 
 class SearchStationsListView extends StatelessWidget {
   const SearchStationsListView({Key? key}) : super(key: key);
@@ -12,13 +10,6 @@ class SearchStationsListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    void onStationSelected(Station station) {
-      Navigator.restorablePushNamed(
-        context,
-        StationDetailsView.routeName,
-        arguments: station.toJson(),
-      );
-    }
 
     return Scaffold(
         appBar: AppBar(
@@ -32,9 +23,8 @@ class SearchStationsListView extends StatelessWidget {
             ),
           ],
         ),
-        body: StationSearchWidget(
-          resultCount: 10,
-          onStationSelected: onStationSelected, // Pass the callback
+        body: const StationSearchWidget(
+          resultCount: 10, // Pass the callback
         ));
   }
 }
