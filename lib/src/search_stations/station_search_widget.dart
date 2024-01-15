@@ -53,7 +53,6 @@ class _StationSearchWidgetState extends State<StationSearchWidget> {
   }
 
   void getRecentsAndSuggestions([forceUpdate = false]) {
-    isLoading = true;
     // for arrival station search, don't include recent args
     if (widget.depStation != null) {
       callApi('', widget.resultCount).then((newFetchedArgs) => {
@@ -144,11 +143,13 @@ class _StationSearchWidgetState extends State<StationSearchWidget> {
   void updateStations(String query) {
     if (_debounce?.isActive ?? false) _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 250), () {
+      setState(() {
+        isLoading = true;
+      });
       if (query.isEmpty) {
         getRecentsAndSuggestions(true);
         return;
       }
-      isLoading = true;
       callApi(query, widget.resultCount).then((newFetchedArgs) => {
             setState(() {
               fetchedArgs = newFetchedArgs;
@@ -167,6 +168,9 @@ class _StationSearchWidgetState extends State<StationSearchWidget> {
   }
 
   void goToStationDetails(StationDetailsArguments stationDetailsArguments) {
+    setState(() {
+      isLoading = true;
+    });
     // if it is going to station details for the first time
     if (widget.depStation == null) {
       Navigator.restorablePushNamed(
