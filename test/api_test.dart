@@ -16,7 +16,7 @@ import 'api_test.mocks.dart';
 void main() async {
   await dotenv.load();
   final client = MockClient();
-  group('searchStations', () {
+  group('api', () {
     test('returns a List of Station if the http call completes successfully',
         () async {
       const query = 'test';
