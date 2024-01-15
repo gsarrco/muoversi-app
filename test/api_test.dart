@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:muoversi/src/helpers/api.dart';
+import 'package:muoversi/src/helpers/search-stations.dart';
 import 'package:muoversi/src/models/offset.dart';
 import 'package:muoversi/src/models/station.dart';
 import 'package:muoversi/src/models/stop_time.dart';
@@ -16,7 +17,7 @@ import 'api_test.mocks.dart';
 void main() async {
   await dotenv.load();
   final client = MockClient();
-  group('searchStations', () {
+  group('api', () {
     test('returns a List of Station if the http call completes successfully',
         () async {
       const query = 'test';
@@ -40,19 +41,17 @@ void main() async {
 
       expect(await searchStations(client, query, limit), isA<List<Station>>());
     });
-    test('returns only treni stations and exclude Venezia Mestre', () async {
+    test('returns only treni stations', () async {
       const query = 'Venezia';
       const limit = 1;
       final baseApiUrl = dotenv.env['BASE_API_URL'];
       const onlySource = 'treni';
-      const List<String> hideIds = ['S02589'];
 
       final uri =
           Uri.parse("$baseApiUrl/search/stations").replace(queryParameters: {
         'q': query,
         'limit': limit.toString(),
         'only_source': onlySource,
-        'hide_ids': hideIds.join(','),
       });
 
       const result = [
@@ -69,7 +68,7 @@ void main() async {
       when(client.get(uri))
           .thenAnswer((_) async => http.Response(jsonEncode(result), 200));
 
-      expect(await searchStations(client, query, limit, onlySource, hideIds),
+      expect(await searchStations(client, query, limit, onlySource),
           isA<List<Station>>());
     });
   });
@@ -127,6 +126,62 @@ void main() async {
           await getStopTimes(
               client, depStopsIds, source, startDt, offset, limit, arrStopsIds),
           isA<List<List<StopTime>>>());
+    });
+  });
+  group('searchStations', () {
+    test(
+        'returns only treni stations and exclude Venezia Santa Lucia after the api',
+        () async {
+      const query = 'Venezia';
+      const maxLimit = 3;
+      const slice = 2;
+      final baseApiUrl = dotenv.env['BASE_API_URL'];
+      const onlySource = 'treni';
+      // hide Venezia Santa Lucia
+      const List<String> hideIds = ['S02593'];
+
+      final uri =
+          Uri.parse("$baseApiUrl/search/stations").replace(queryParameters: {
+        'q': query,
+        'limit': maxLimit.toString(),
+        'only_source': onlySource,
+      });
+
+      const httpResult = [
+        {
+          "id": "S02593",
+          "name": "Venezia Santa Lucia",
+          "lat": 45.441397,
+          "lon": 12.320462,
+          "source": "treni",
+          "ids": "S02593"
+        },
+        {
+          "id": "S02592",
+          "name": "Venezia Mestre",
+          "lat": 45.441396,
+          "lon": 12.320461,
+          "source": "treni",
+          "ids": "S02590"
+        },
+        {
+          "id": "S02591",
+          "name": "Venezia Porto Marghera",
+          "lat": 45.441395,
+          "lon": 12.320460,
+          "source": "treni",
+          "ids": "S02591"
+        }
+      ];
+
+      when(client.get(uri))
+          .thenAnswer((_) async => http.Response(jsonEncode(httpResult), 200));
+
+      List<Station> result = await searchStationsAndHide(
+          client, query, maxLimit, slice, onlySource, hideIds);
+
+      expect(result.length, 2);
+      expect(result[0].toJson(), httpResult[1]);
     });
   });
 }

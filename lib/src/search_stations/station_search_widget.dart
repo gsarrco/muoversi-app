@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:muoversi/src/helpers/api.dart';
+import 'package:muoversi/src/helpers/search-stations.dart';
 import 'package:muoversi/src/models/station.dart';
 
 import '../models/station_details_arguments.dart';
@@ -46,10 +46,15 @@ class _StationSearchWidgetState extends State<StationSearchWidget> {
   }
 
   Future<List<Station>> callApi(String query) {
-    List<String>? hideIds =
-        widget.depStation != null ? [widget.depStation!.id] : null;
-    return searchStations(
-        http.Client(), query, widget.resultCount, widget.onlySource, hideIds);
+    final int slice = widget.resultCount;
+    int maxLimit = slice;
+    List<String>? hideIds;
+    if (widget.depStation != null) {
+      hideIds = [widget.depStation!.id];
+      maxLimit++;
+    }
+    return searchStationsAndHide(
+        http.Client(), query, maxLimit, slice, widget.onlySource, hideIds);
   }
 
   void setShowStations(bool show) {

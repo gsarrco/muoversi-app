@@ -9,7 +9,7 @@ import '../models/station.dart';
 
 Future<List<Station>> searchStations(
     http.Client client, String query, int limit,
-    [String? onlySource, List<String>? hideIds]) async {
+    [String? onlySource]) async {
   final baseApiUrl = dotenv.env['BASE_API_URL'];
 
   Map<String, String> queryParameters = {
@@ -19,9 +19,6 @@ Future<List<Station>> searchStations(
 
   if (onlySource != null) {
     queryParameters['only_source'] = onlySource;
-  }
-  if (hideIds != null) {
-    queryParameters['hide_ids'] = hideIds.join(',');
   }
 
   final uri = Uri.parse("$baseApiUrl/search/stations")
