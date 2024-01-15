@@ -41,19 +41,17 @@ void main() async {
 
       expect(await searchStations(client, query, limit), isA<List<Station>>());
     });
-    test('returns only treni stations and exclude Venezia Mestre', () async {
+    test('returns only treni stations', () async {
       const query = 'Venezia';
       const limit = 1;
       final baseApiUrl = dotenv.env['BASE_API_URL'];
       const onlySource = 'treni';
-      const List<String> hideIds = ['S02589'];
 
       final uri =
           Uri.parse("$baseApiUrl/search/stations").replace(queryParameters: {
         'q': query,
         'limit': limit.toString(),
         'only_source': onlySource,
-        'hide_ids': hideIds.join(','),
       });
 
       const result = [
@@ -70,7 +68,7 @@ void main() async {
       when(client.get(uri))
           .thenAnswer((_) async => http.Response(jsonEncode(result), 200));
 
-      expect(await searchStations(client, query, limit, onlySource, hideIds),
+      expect(await searchStations(client, query, limit, onlySource),
           isA<List<Station>>());
     });
   });
