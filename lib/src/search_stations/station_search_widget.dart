@@ -166,17 +166,31 @@ class _StationSearchWidgetState extends State<StationSearchWidget> {
     super.dispose();
   }
 
+  void goToStationDetails(StationDetailsArguments stationDetailsArguments) {
+    // if it is going to station details for the first time
+    if (widget.depStation == null) {
+      Navigator.restorablePushNamed(
+        context,
+        StationDetailsView.routeName,
+        arguments: stationDetailsArguments.toJson(),
+      );
+      return;
+    }
+    // if it is going to station details from arrival station search
+    Navigator.restorablePushReplacementNamed(
+      context,
+      StationDetailsView.routeName,
+      arguments: stationDetailsArguments.toJson(),
+    );
+  }
+
   void onStationSelected(StationDetailsArguments stationDetailsArguments) {
     final List<String> newPrefList = stationDetailsArguments.getNewPrefList(
       prefs.getStringList('recentArgs') ?? [],
       3,
     );
     prefs.setStringList('recentArgs', newPrefList).then((value) => {
-          Navigator.restorablePushNamed(
-            context,
-            StationDetailsView.routeName,
-            arguments: stationDetailsArguments.toJson(),
-          )
+          goToStationDetails(stationDetailsArguments),
         });
   }
 
