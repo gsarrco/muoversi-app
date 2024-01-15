@@ -5,18 +5,22 @@ import 'package:muoversi/src/models/station.dart';
 class StationDetailsArguments {
   final Station depStation;
   final Station? arrStation;
+  final bool saved;
 
   const StationDetailsArguments({
     required this.depStation,
     this.arrStation,
+    this.saved = false,
   });
 
-  factory StationDetailsArguments.fromJson(Map<String, dynamic> json) {
+  factory StationDetailsArguments.fromJson(Map<String, dynamic> json,
+      [bool saved = false]) {
     return StationDetailsArguments(
       depStation: Station.fromJson(json['depStation']),
       arrStation: json['arrStation'] != null
           ? Station.fromJson(json['arrStation'])
           : null,
+      saved: saved,
     );
   }
 
@@ -31,8 +35,9 @@ class StationDetailsArguments {
     return jsonEncode(toJson());
   }
 
-  factory StationDetailsArguments.fromJsonString(String jsonString) {
-    return StationDetailsArguments.fromJson(jsonDecode(jsonString));
+  factory StationDetailsArguments.fromJsonString(String jsonString,
+      [bool saved = false]) {
+    return StationDetailsArguments.fromJson(jsonDecode(jsonString), saved);
   }
 
   List<String> getNewPrefList(List<String> pList, int limit) {
@@ -51,4 +56,24 @@ class StationDetailsArguments {
 
     return argList.map((e) => e.toJsonString()).take(limit).toList();
   }
+
+  String getTitle(showOnlyArrStation) {
+    if (showOnlyArrStation) {
+      return arrStation!.name;
+    }
+    String title = depStation.name;
+    if (arrStation != null) {
+      title += ' > ${arrStation!.name}';
+    }
+    return title;
+  }
+
+  @override
+  bool operator ==(other) =>
+      other is StationDetailsArguments &&
+      other.depStation.id == depStation.id &&
+      other.depStation.source == depStation.source;
+
+  @override
+  int get hashCode => depStation.id.hashCode ^ depStation.source.hashCode;
 }
