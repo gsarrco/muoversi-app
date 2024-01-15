@@ -26,7 +26,7 @@ class StationSearchWidget extends StatefulWidget {
       : super(key: key);
 
   @override
-  _StationSearchWidgetState createState() => _StationSearchWidgetState();
+  State<StationSearchWidget> createState() => _StationSearchWidgetState();
 }
 
 class _StationSearchWidgetState extends State<StationSearchWidget> {
