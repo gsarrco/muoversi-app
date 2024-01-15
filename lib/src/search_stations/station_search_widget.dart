@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:muoversi/src/helpers/api.dart';
 import 'package:muoversi/src/models/station.dart';
 
-import '../models/stations_details_arguments.dart';
+import '../models/station_details_arguments.dart';
 import '../station_details/station_details_view.dart';
 
 class StationSearchWidget extends StatefulWidget {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'models/stations_details_arguments.dart';
+import 'models/station_details_arguments.dart';
 import 'search_stations/search_stations_list_view.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
