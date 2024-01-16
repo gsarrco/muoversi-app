@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../models/stop_time.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class StopTimesListTile extends StatelessWidget {
   const StopTimesListTile({
@@ -22,7 +23,7 @@ class StopTimesListTile extends StatelessWidget {
           .inMinutes;
       final hours = difference ~/ 60;
       final minutes = difference % 60;
-      duration = (hours > 0) ? '${hours}h ${minutes}m' : '${minutes}m';
+      duration = AppLocalizations.of(context)!.duration(hours, minutes);
     }
 
     String platform = depStopTime.platform ?? '';
@@ -32,7 +33,7 @@ class StopTimesListTile extends StatelessWidget {
       platform += ' > ${arrStopTime?.platform}';
     }
     if (platform.isNotEmpty) {
-      platform = 'Platform $platform';
+      platform = AppLocalizations.of(context)!.platform(platform);
     }
 
     return ListTile(
@@ -56,10 +57,7 @@ class StopTimesListTile extends StatelessWidget {
             ],
           ),
           if (duration != null)
-            Text(
-              'duration: $duration',
-              style: const TextStyle(fontSize: 15),
-            ),
+            Text(duration, style: const TextStyle(fontSize: 15)),
         ],
       ),
       title: Text(

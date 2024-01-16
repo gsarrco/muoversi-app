@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:muoversi/src/search_stations/station_search_widget.dart';
 
 import '../settings/settings_view.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SearchStationsListView extends StatelessWidget {
   const SearchStationsListView({Key? key}) : super(key: key);
@@ -10,10 +11,9 @@ class SearchStationsListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Muoversi'),
+          title: Text(AppLocalizations.of(context)!.appTitle),
           actions: [
             IconButton(
               icon: const Icon(Icons.settings),

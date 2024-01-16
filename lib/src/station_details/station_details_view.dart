@@ -208,7 +208,8 @@ class _StationDetailsViewState extends State<StationDetailsView> {
                       Padding(
                         padding: const EdgeInsets.only(top: 4, bottom: 8),
                         child: Text(
-                          DateFormat('EEEE d MMM')
+                          DateFormat('EEEE d MMM',
+                                  Localizations.localeOf(context).toString())
                               .format(depStopTime.schedDepDt!),
                           style: const TextStyle(
                               color: Colors.blue,
