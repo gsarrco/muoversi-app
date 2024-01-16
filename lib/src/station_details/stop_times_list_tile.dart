@@ -74,13 +74,8 @@ class StopTimesListTile extends StatelessWidget {
               textAlign: TextAlign.left,
             ),
           ),
-          if (depStopTime.platform != null && depStopTime.platform!.isNotEmpty)
-            Expanded(
-              child: Text(
-                'Platform ${depStopTime.platform}',
-                textAlign: TextAlign.right,
-              ),
-            ),
+          if (platform.isNotEmpty)
+            Expanded(child: Text(platform, textAlign: TextAlign.right)),
         ],
       ),
     );
