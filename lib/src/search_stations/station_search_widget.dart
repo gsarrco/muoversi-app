@@ -37,6 +37,7 @@ class _StationSearchWidgetState extends State<StationSearchWidget> {
   late SharedPreferences prefs;
   List<StationDetailsArguments> argsList = [];
   bool isLoading = true;
+  final TextEditingController queryController = TextEditingController();
 
   @override
   void initState() {
@@ -64,6 +65,7 @@ class _StationSearchWidgetState extends State<StationSearchWidget> {
           });
       return;
     }
+    queryController.clear();
 
     // for departure station search, include recent args
     final List<String> recentArgs = prefs.getStringList('recentArgs') ?? [];
@@ -217,6 +219,7 @@ class _StationSearchWidgetState extends State<StationSearchWidget> {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextField(
+                controller: queryController,
                 onChanged: updateStations,
                 onTap: () {
                   setShowStations(true);
