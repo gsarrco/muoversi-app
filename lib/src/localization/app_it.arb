@@ -1,18 +1,18 @@
 {
-  "@@locale": "en",
+  "@@locale": "it",
   "appTitle": "Muoversi",
   "@appTitle": {
     "description": "The name of the application"
   },
-  "searchDepStation": "Search departing stop/station...",
+  "searchDepStation": "Cerca fermata/stazione di partenza...",
   "@searchDepStation": {
     "description": "Placeholder text for the search departing stop/station input field"
   },
-  "searchArrStation": "Search arrival stop/station...",
+  "searchArrStation": "Cerca fermata/stazione di arrivo...",
   "@searchArrStation": {
     "description": "Placeholder text for the search arrival stop/station input field"
   },
-  "duration": "duration:{hours, plural, =0{} other{ {hours}h}}{minutes, plural, =0{} other{ {minutes}m}}",
+  "duration": "durata:{hours, plural, =0{} other{ {hours}o}}{minutes, plural, =0{} other{ {minutes}m}}",
   "@duration": {
     "description": "Duration of the trip in hours and minutes",
     "placeholders": {
@@ -26,7 +26,7 @@
       }
     }
   },
-  "platform": "Platform {platform}",
+  "platform": "Binario {platform}",
   "@platform": {
     "description": "Platform number of the stop/station",
     "placeholders": {
@@ -36,19 +36,19 @@
       }
     }
   },
-  "settings": "Settings",
+  "settings": "Impostazioni",
   "@settings": {
     "description": "Settings page"
   },
-  "systemTheme": "System theme",
+  "systemTheme": "Tema di sistema",
   "@systemTheme": {
     "description": "An option to adapt the app light/dark theme to the system theme"
   },
-  "lightTheme": "Light theme",
+  "lightTheme": "Tema chiaro",
   "@lightTheme": {
     "description": "A light theme of the interface"
   },
-  "darkTheme": "Dark theme",
+  "darkTheme": "Tema scuro",
   "@darkTheme": {
     "description": "A dark theme of the interface"
   }

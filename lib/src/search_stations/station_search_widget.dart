@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/station_details_arguments.dart';
 import '../station_details/station_details_view.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class StationSearchWidget extends StatefulWidget {
   final int resultCount;
@@ -203,8 +204,8 @@ class _StationSearchWidgetState extends State<StationSearchWidget> {
   @override
   Widget build(BuildContext context) {
     final String searchText = widget.onlySource == null
-        ? 'Search departing stop/station...'
-        : 'Search arrival stop/station...';
+        ? AppLocalizations.of(context)!.searchDepStation
+        : AppLocalizations.of(context)!.searchArrStation;
     return FocusDetector(
       onVisibilityGained: () {
         if (widget.depStation == null) {
