@@ -51,5 +51,9 @@
   "darkTheme": "Dark theme",
   "@darkTheme": {
     "description": "A dark theme of the interface"
+  },
+  "recentTripDeleted": "Recent trip deleted",
+  "@recentTripDeleted": {
+    "description": "A message that appears when a recent trip is successfully deleted with a swipe"
   }
 }

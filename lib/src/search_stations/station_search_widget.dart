@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:focus_detector/focus_detector.dart';
 import 'package:http/http.dart' as http;
 import 'package:muoversi/src/helpers/search-stations.dart';
@@ -10,7 +11,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/station_details_arguments.dart';
 import '../station_details/station_details_view.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class StationSearchWidget extends StatefulWidget {
   final int resultCount;
@@ -201,11 +201,59 @@ class _StationSearchWidgetState extends State<StationSearchWidget> {
         });
   }
 
+  void deleteSavedArg(int index) {
+    setState(() {
+      argsList.removeAt(index);
+    });
+    List<String> currentList = prefs.getStringList('recentArgs') ?? [];
+    currentList.removeAt(index);
+    prefs.setStringList('recentArgs', currentList).then((value) => {
+          setState(() {
+            getRecentsAndSuggestions(true);
+          })
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final AppLocalizations? localizations = AppLocalizations.of(context);
+
     final String searchText = widget.onlySource == null
-        ? AppLocalizations.of(context)!.searchDepStation
-        : AppLocalizations.of(context)!.searchArrStation;
+        ? localizations!.searchDepStation
+        : localizations!.searchArrStation;
+
+    Widget getListTile(StationDetailsArguments stationDetailsArguments) {
+      final depStation = stationDetailsArguments.depStation;
+      IconData sourceIcon;
+      Color sourceColor;
+      if (depStation.source == 'treni') {
+        sourceIcon = Icons.train;
+        sourceColor = Colors.green;
+      } else if (depStation.source == 'aut') {
+        sourceIcon = Icons.directions_bus;
+        sourceColor = Colors.orange;
+      } else if (depStation.source == 'nav') {
+        sourceIcon = Icons.directions_boat;
+        sourceColor = Colors.blue;
+      } else {
+        sourceIcon = Icons.location_on;
+        sourceColor = Colors.grey;
+      }
+      return ListTile(
+          title: Text(
+              stationDetailsArguments.getTitle(widget.depStation != null),
+              overflow: TextOverflow.ellipsis),
+          leading: CircleAvatar(
+            backgroundColor: sourceColor,
+            child: Icon(sourceIcon, color: Colors.white),
+          ),
+          trailing:
+              stationDetailsArguments.saved ? const Icon(Icons.schedule) : null,
+          onTap: () {
+            onStationSelected(stationDetailsArguments);
+          });
+    }
+
     return FocusDetector(
       onVisibilityGained: () {
         if (widget.depStation == null) {
@@ -251,38 +299,33 @@ class _StationSearchWidgetState extends State<StationSearchWidget> {
                   itemBuilder: (BuildContext context, int index) {
                     final StationDetailsArguments stationDetailsArguments =
                         argsList[index];
-                    final depStation = stationDetailsArguments.depStation;
-                    IconData sourceIcon;
-                    Color sourceColor;
-                    if (depStation.source == 'treni') {
-                      sourceIcon = Icons.train;
-                      sourceColor = Colors.green;
-                    } else if (depStation.source == 'aut') {
-                      sourceIcon = Icons.directions_bus;
-                      sourceColor = Colors.orange;
-                    } else if (depStation.source == 'nav') {
-                      sourceIcon = Icons.directions_boat;
-                      sourceColor = Colors.blue;
-                    } else {
-                      sourceIcon = Icons.location_on;
-                      sourceColor = Colors.grey;
+
+                    if (!stationDetailsArguments.saved) {
+                      return getListTile(stationDetailsArguments);
                     }
 
-                    return ListTile(
-                        title: Text(
-                            stationDetailsArguments
-                                .getTitle(widget.depStation != null),
-                            overflow: TextOverflow.ellipsis),
-                        leading: CircleAvatar(
-                          backgroundColor: sourceColor,
-                          child: Icon(sourceIcon, color: Colors.white),
+                    return Dismissible(
+                      key: Key(stationDetailsArguments.depStation.id +
+                          index.toString()),
+                      direction: DismissDirection.startToEnd,
+                      onDismissed: (direction) {
+                        deleteSavedArg(index);
+
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(localizations!.recentTripDeleted)));
+                      },
+                      // Show a red background as the item is swiped away.
+                      background: Container(
+                        color: Colors.red,
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        alignment: Alignment.centerLeft,
+                        child: const Icon(
+                          Icons.delete,
+                          color: Colors.white,
                         ),
-                        trailing: stationDetailsArguments.saved
-                            ? const Icon(Icons.schedule)
-                            : null,
-                        onTap: () {
-                          onStationSelected(stationDetailsArguments);
-                        });
+                      ),
+                      child: getListTile(stationDetailsArguments),
+                    );
                   },
                 );
               }),
