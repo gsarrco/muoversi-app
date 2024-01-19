@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 
 import '../models/stop_time.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class StopTimesListTile extends StatelessWidget {
   const StopTimesListTile({
@@ -63,6 +63,7 @@ class StopTimesListTile extends StatelessWidget {
       title: Text(
         '${depStopTime.routeName} ${depStopTime.destText}',
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+        overflow: TextOverflow.ellipsis,
       ),
       subtitle: Row(
         children: [
