@@ -17,7 +17,7 @@ void main() {
           "dest_text": "MIRANO",
           "number": 41728,
           "route_name": "7E",
-          "source": "aut",
+          "source": "venezia-aut",
           "stop_id": "aut_507"
         }
       ],
@@ -32,7 +32,7 @@ void main() {
           "dest_text": "FAVARO ALTINIA",
           "number": 37325,
           "route_name": "19",
-          "source": "aut",
+          "source": "venezia-aut",
           "stop_id": "aut_505"
         }
       ],
@@ -47,7 +47,7 @@ void main() {
           "dest_text": "MESTRE CENTRO",
           "number": 39136,
           "route_name": "4L",
-          "source": "aut",
+          "source": "venezia-aut",
           "stop_id": "aut_509"
         }
       ],
@@ -62,7 +62,7 @@ void main() {
           "dest_text": "V.LE D.STURZO",
           "number": 38269,
           "route_name": "2",
-          "source": "aut",
+          "source": "venezia-aut",
           "stop_id": "aut_510"
         }
       ]

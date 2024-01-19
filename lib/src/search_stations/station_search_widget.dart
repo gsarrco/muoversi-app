@@ -219,13 +219,13 @@ class _StationSearchWidgetState extends State<StationSearchWidget> {
       final depStation = stationDetailsArguments.depStation;
       IconData sourceIcon;
       Color sourceColor;
-      if (depStation.source == 'treni') {
+      if (depStation.source == 'venezia-treni') {
         sourceIcon = Icons.train;
         sourceColor = Colors.green;
-      } else if (depStation.source == 'aut') {
+      } else if (depStation.source == 'venezia-aut') {
         sourceIcon = Icons.directions_bus;
         sourceColor = Colors.orange;
-      } else if (depStation.source == 'nav') {
+      } else if (depStation.source == 'venezia-nav') {
         sourceIcon = Icons.directions_boat;
         sourceColor = Colors.blue;
       } else {

@@ -31,7 +31,7 @@ void main() async {
           "name": "Venezia Santa Lucia",
           "lat": 45.441397,
           "lon": 12.320462,
-          "source": "treni",
+          "source": "venezia-treni",
           "ids": "S02593"
         }
       ];
@@ -45,7 +45,7 @@ void main() async {
       const query = 'Venezia';
       const limit = 1;
       final baseApiUrl = dotenv.env['BASE_API_URL'];
-      const onlySource = 'treni';
+      const onlySource = 'venezia-treni';
 
       final uri =
           Uri.parse("$baseApiUrl/search/stations").replace(queryParameters: {
@@ -60,7 +60,7 @@ void main() async {
           "name": "Venezia Santa Lucia",
           "lat": 45.441397,
           "lon": 12.320462,
-          "source": "treni",
+          "source": "venezia-treni",
           "ids": "S02593"
         }
       ];
@@ -81,8 +81,8 @@ void main() async {
 
     test('returns a List of StopTime if the http call completes successfully',
         () async {
-      const depStopsIds = 'aut_6021,aut_6022';
-      const source = 'aut';
+          const depStopsIds = 'aut_6021,aut_6022';
+      const source = 'venezia-aut';
       final startDt = DateTime.parse('2023-11-25T12:30:00');
       const offsetByStopsIds = '';
       const limit = 1;
@@ -113,7 +113,7 @@ void main() async {
             "dest_text": "FAVARO",
             "number": 39721,
             "route_name": "T1",
-            "source": "aut",
+            "source": "venezia-aut",
             "stop_id": "aut_6022"
           }
         ]
@@ -132,11 +132,11 @@ void main() async {
     test(
         'returns only treni stations and exclude Venezia Santa Lucia after the api',
         () async {
-      const query = 'Venezia';
+          const query = 'Venezia';
       const maxLimit = 3;
       const slice = 2;
       final baseApiUrl = dotenv.env['BASE_API_URL'];
-      const onlySource = 'treni';
+      const onlySource = 'venezia-treni';
       // hide Venezia Santa Lucia
       const List<String> hideIds = ['S02593'];
 
@@ -153,7 +153,7 @@ void main() async {
           "name": "Venezia Santa Lucia",
           "lat": 45.441397,
           "lon": 12.320462,
-          "source": "treni",
+          "source": "venezia-treni",
           "ids": "S02593"
         },
         {
@@ -161,7 +161,7 @@ void main() async {
           "name": "Venezia Mestre",
           "lat": 45.441396,
           "lon": 12.320461,
-          "source": "treni",
+          "source": "venezia-treni",
           "ids": "S02590"
         },
         {
@@ -169,7 +169,7 @@ void main() async {
           "name": "Venezia Porto Marghera",
           "lat": 45.441395,
           "lon": 12.320460,
-          "source": "treni",
+          "source": "venezia-treni",
           "ids": "S02591"
         }
       ];
