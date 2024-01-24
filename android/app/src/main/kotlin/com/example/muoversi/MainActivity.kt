@@ -1,4 +1,4 @@
-package co.sarr.muoversi
+package app.muoversi
 
 import io.flutter.embedding.android.FlutterActivity
 
