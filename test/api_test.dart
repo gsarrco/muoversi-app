@@ -23,7 +23,11 @@ void main() async {
       const query = 'test';
       const limit = 1;
       final baseApiUrl = dotenv.env['BASE_API_URL'];
-      final url = '$baseApiUrl/search/stations?q=$query&limit=$limit';
+      final uri =
+          Uri.parse("$baseApiUrl/search/stations").replace(queryParameters: {
+        'q': query,
+        'limit': limit.toString(),
+      });
 
       const result = [
         {
@@ -36,7 +40,7 @@ void main() async {
         }
       ];
 
-      when(client.get(Uri.parse(url)))
+      when(client.get(uri))
           .thenAnswer((_) async => http.Response(jsonEncode(result), 200));
 
       expect(await searchStations(client, query, limit), isA<List<Station>>());
@@ -81,7 +85,7 @@ void main() async {
 
     test('returns a List of StopTime if the http call completes successfully',
         () async {
-          const depStopsIds = 'aut_6021,aut_6022';
+      const depStopsIds = 'aut_6021,aut_6022';
       const source = 'venezia-aut';
       final startDt = DateTime.parse('2023-11-25T12:30:00');
       const offsetByStopsIds = '';
@@ -132,7 +136,7 @@ void main() async {
     test(
         'returns only treni stations and exclude Venezia Santa Lucia after the api',
         () async {
-          const query = 'Venezia';
+      const query = 'Venezia';
       const maxLimit = 3;
       const slice = 2;
       final baseApiUrl = dotenv.env['BASE_API_URL'];
