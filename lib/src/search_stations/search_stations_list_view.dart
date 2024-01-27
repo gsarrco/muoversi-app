@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:muoversi/src/search_stations/station_search_widget.dart';
 
+import '../models/source.dart';
 import '../settings/settings_view.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SearchStationsListView extends StatelessWidget {
-  const SearchStationsListView({Key? key}) : super(key: key);
+  final Future<Map<String, Source>> sources;
+
+  const SearchStationsListView({
+    Key? key,
+    required this.sources,
+  }) : super(key: key);
 
   static const routeName = '/';
 
@@ -23,8 +29,9 @@ class SearchStationsListView extends StatelessWidget {
             ),
           ],
         ),
-        body: const StationSearchWidget(
-          resultCount: 10, // Pass the callback
+        body: StationSearchWidget(
+          resultCount: 10,
+          sources: sources, // Pass the callback
         ));
   }
 }

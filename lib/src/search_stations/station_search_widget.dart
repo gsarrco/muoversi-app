@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:focus_detector/focus_detector.dart';
 import 'package:http/http.dart' as http;
-import 'package:muoversi/src/helpers/api.dart';
 import 'package:muoversi/src/helpers/search-stations.dart';
 import 'package:muoversi/src/models/station.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,10 +18,12 @@ class StationSearchWidget extends StatefulWidget {
   final String? onlySource;
   final Station? depStation;
   final ScrollController? scrollController;
+  final Future<Map<String, Source>> sources;
 
   const StationSearchWidget(
       {Key? key,
       required this.resultCount,
+      required this.sources,
       this.onlySource,
       this.depStation,
       this.scrollController})
@@ -41,16 +42,11 @@ class _StationSearchWidgetState extends State<StationSearchWidget> {
   List<StationDetailsArguments> argsList = [];
   bool isLoading = true;
   final TextEditingController queryController = TextEditingController();
-  late Future<Map<String, Source>> sources;
 
   @override
   void initState() {
     super.initState();
     widget.scrollController?.addListener(_scrollListener);
-    sources =
-        getSourcesFromCity(http.Client(), 'venezia').then((newSources) => {
-              for (var source in newSources) source.name: source,
-            });
     initPrefs();
   }
 
@@ -279,7 +275,7 @@ class _StationSearchWidgetState extends State<StationSearchWidget> {
           if (showStations)
             Expanded(
               child: FutureBuilder<Map<String, Source>>(
-                  future: sources,
+                  future: widget.sources,
                   builder: (context, snapshot) {
                     if (isLoading || !snapshot.hasData) {
                       return const CircularProgressIndicator();

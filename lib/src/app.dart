@@ -1,21 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:http/http.dart' as http;
 
+import 'helpers/api.dart';
+import 'models/source.dart';
 import 'models/station_details_arguments.dart';
 import 'search_stations/search_stations_list_view.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
 import 'station_details/station_details_view.dart';
 
-/// The Widget that configures your application.
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  final SettingsController settingsController;
+
   const MyApp({
     super.key,
     required this.settingsController,
   });
 
-  final SettingsController settingsController;
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final Future<Map<String, Source>> sources =
+      getSourcesFromCity(http.Client(), 'venezia').then((newSources) => {
+            for (var source in newSources) source.name: source,
+          });
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +36,7 @@ class MyApp extends StatelessWidget {
     // The ListenableBuilder Widget listens to the SettingsController for changes.
     // Whenever the user updates their settings, the MaterialApp is rebuilt.
     return ListenableBuilder(
-      listenable: settingsController,
+      listenable: widget.settingsController,
       builder: (BuildContext context, Widget? child) {
         return MaterialApp(
           // Providing a restorationScopeId allows the Navigator built by the
@@ -60,7 +72,7 @@ class MyApp extends StatelessWidget {
           // SettingsController to display the correct theme.
           theme: ThemeData(),
           darkTheme: ThemeData.dark(),
-          themeMode: settingsController.themeMode,
+          themeMode: widget.settingsController.themeMode,
 
           // Define a function to handle named routes in order to support
           // Flutter web url navigation and deep linking.
@@ -70,7 +82,7 @@ class MyApp extends StatelessWidget {
               builder: (BuildContext context) {
                 switch (routeSettings.name) {
                   case SettingsView.routeName:
-                    return SettingsView(controller: settingsController);
+                    return SettingsView(controller: widget.settingsController);
                   case StationDetailsView.routeName:
                     final json =
                         routeSettings.arguments as Map<String, dynamic>;
@@ -79,10 +91,11 @@ class MyApp extends StatelessWidget {
                     return StationDetailsView(
                       depStation: stationDetailsArguments.depStation,
                       arrStation: stationDetailsArguments.arrStation,
+                      sources: sources,
                     );
                   case SearchStationsListView.routeName:
                   default:
-                    return const SearchStationsListView();
+                  return SearchStationsListView(sources: sources);
                 }
               },
             );
