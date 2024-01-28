@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -25,11 +27,14 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   late Future<Map<String, Source>> sources;
+  late final Timer timer;
 
   @override
   void initState() {
     super.initState();
     updateSources();
+    timer = Timer.periodic(
+        const Duration(days: 1), (Timer t) => updateSources());
   }
 
   void updateSources() {
