@@ -8,6 +8,7 @@ import 'package:mockito/mockito.dart';
 import 'package:muoversi/src/helpers/api.dart';
 import 'package:muoversi/src/helpers/search-stations.dart';
 import 'package:muoversi/src/models/offset.dart';
+import 'package:muoversi/src/models/source.dart';
 import 'package:muoversi/src/models/station.dart';
 import 'package:muoversi/src/models/stop_time.dart';
 
@@ -192,6 +193,22 @@ void main() async {
 
       expect(result.length, 2);
       expect(result[0].toJson(), httpResult[1]);
+    });
+  });
+  group('getSourcesFromCity', () {
+    test('returns a List of Source if the http call completes successfully',
+        () async {
+      const city = 'venezia';
+      final baseApiUrl = dotenv.env['BASE_API_URL'];
+      final url = '$baseApiUrl/cities/$city';
+      const result = [
+        {"name": "venezia-aut", "color": "#FF9800", "icon_code": 57813}
+      ];
+
+      when(client.get(Uri.parse(url)))
+          .thenAnswer((_) async => http.Response(jsonEncode(result), 200));
+
+      expect(await getSourcesFromCity(client, city), isA<List<Source>>());
     });
   });
 }

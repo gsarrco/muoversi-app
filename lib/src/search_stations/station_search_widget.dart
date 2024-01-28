@@ -9,6 +9,7 @@ import 'package:muoversi/src/helpers/search-stations.dart';
 import 'package:muoversi/src/models/station.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../models/source.dart';
 import '../models/station_details_arguments.dart';
 import '../station_details/station_details_view.dart';
 
@@ -17,10 +18,12 @@ class StationSearchWidget extends StatefulWidget {
   final String? onlySource;
   final Station? depStation;
   final ScrollController? scrollController;
+  final Future<Map<String, Source>> sources;
 
   const StationSearchWidget(
       {Key? key,
       required this.resultCount,
+      required this.sources,
       this.onlySource,
       this.depStation,
       this.scrollController})
@@ -219,30 +222,20 @@ class _StationSearchWidgetState extends State<StationSearchWidget> {
         ? localizations!.searchDepStation
         : localizations!.searchArrStation;
 
-    Widget getListTile(StationDetailsArguments stationDetailsArguments) {
+    Widget getListTile(StationDetailsArguments stationDetailsArguments,
+        Map<String, Source>? sources) {
       final depStation = stationDetailsArguments.depStation;
-      IconData sourceIcon;
-      Color sourceColor;
-      if (depStation.source == 'venezia-treni') {
-        sourceIcon = Icons.train;
-        sourceColor = Colors.green;
-      } else if (depStation.source == 'venezia-aut') {
-        sourceIcon = Icons.directions_bus;
-        sourceColor = Colors.orange;
-      } else if (depStation.source == 'venezia-nav') {
-        sourceIcon = Icons.directions_boat;
-        sourceColor = Colors.blue;
-      } else {
-        sourceIcon = Icons.location_on;
-        sourceColor = Colors.grey;
-      }
+      Source? source = sources?[depStation.source];
+      int iconCode = source?.iconCode ?? 0xe3ab;
+      String colorHex = source?.color.replaceFirst('#', '0xff') ?? '0xff9e9e9e';
       return ListTile(
           title: Text(
               stationDetailsArguments.getTitle(widget.depStation != null),
               overflow: TextOverflow.ellipsis),
           leading: CircleAvatar(
-            backgroundColor: sourceColor,
-            child: Icon(sourceIcon, color: Colors.white),
+            backgroundColor: Color(int.parse(colorHex)),
+            child: Icon(IconData(iconCode, fontFamily: 'MaterialIcons'),
+                color: Colors.white),
           ),
           trailing:
               stationDetailsArguments.saved ? const Icon(Icons.schedule) : null,
@@ -285,47 +278,52 @@ class _StationSearchWidgetState extends State<StationSearchWidget> {
           ),
           if (showStations)
             Expanded(
-              child: Builder(builder: (context) {
-                if (isLoading) {
-                  return const CircularProgressIndicator();
-                }
-
-                return ListView.builder(
-                  restorationId: 'SearchStationsListView',
-                  itemCount: argsList.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    final StationDetailsArguments stationDetailsArguments =
-                        argsList[index];
-
-                    if (!stationDetailsArguments.saved) {
-                      return getListTile(stationDetailsArguments);
+              child: FutureBuilder<Map<String, Source>>(
+                  future: widget.sources,
+                  builder: (context, snapshot) {
+                    if (isLoading || !snapshot.hasData) {
+                      return const CircularProgressIndicator();
                     }
 
-                    return Dismissible(
-                      key: Key(stationDetailsArguments.depStation.id +
-                          index.toString()),
-                      direction: DismissDirection.startToEnd,
-                      onDismissed: (direction) {
-                        deleteSavedArg(index);
+                    return ListView.builder(
+                      restorationId: 'SearchStationsListView',
+                      itemCount: argsList.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        final StationDetailsArguments stationDetailsArguments =
+                            argsList[index];
 
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: Text(localizations!.recentTripDeleted)));
+                        if (!stationDetailsArguments.saved) {
+                          return getListTile(
+                              stationDetailsArguments, snapshot.data);
+                        }
+
+                        return Dismissible(
+                          key: Key(stationDetailsArguments.depStation.id +
+                              index.toString()),
+                          direction: DismissDirection.startToEnd,
+                          onDismissed: (direction) {
+                            deleteSavedArg(index);
+
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                content:
+                                    Text(localizations!.recentTripDeleted)));
+                          },
+                          // Show a red background as the item is swiped away.
+                          background: Container(
+                            color: Colors.red,
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            alignment: Alignment.centerLeft,
+                            child: const Icon(
+                              Icons.delete,
+                              color: Colors.white,
+                            ),
+                          ),
+                          child: getListTile(
+                              stationDetailsArguments, snapshot.data),
+                        );
                       },
-                      // Show a red background as the item is swiped away.
-                      background: Container(
-                        color: Colors.red,
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        alignment: Alignment.centerLeft,
-                        child: const Icon(
-                          Icons.delete,
-                          color: Colors.white,
-                        ),
-                      ),
-                      child: getListTile(stationDetailsArguments),
                     );
-                  },
-                );
-              }),
+                  }),
             ),
         ],
       ),

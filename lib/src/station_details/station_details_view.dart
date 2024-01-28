@@ -11,13 +11,17 @@ import 'package:muoversi/src/search_stations/station_search_widget.dart';
 import 'package:muoversi/src/station_details/stop_times_list_tile.dart';
 import 'package:rxdart/rxdart.dart';
 
+import '../models/source.dart';
+
 class StationDetailsView extends StatefulWidget {
   final Station depStation;
   final Station? arrStation;
+  final Future<Map<String, Source>> sources;
 
   const StationDetailsView({
     Key? key,
     required this.depStation,
+    required this.sources,
     this.arrStation,
   }) : super(key: key);
 
@@ -146,7 +150,8 @@ class _StationDetailsViewState extends State<StationDetailsView> {
                 resultCount: 3,
                 onlySource: widget.depStation.source,
                 depStation: widget.depStation,
-                scrollController: _scrollController),
+                scrollController: _scrollController,
+                sources: widget.sources),
           ),
         Expanded(
             child: (minusOffset != null)

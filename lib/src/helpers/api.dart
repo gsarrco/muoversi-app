@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:muoversi/src/models/stop_time.dart';
 
 import '../models/offset.dart';
+import '../models/source.dart';
 import '../models/station.dart';
 
 Future<List<Station>> searchStations(
@@ -63,5 +64,19 @@ Future<List<List<StopTime>>> getStopTimes(
         model.map((stopTime) => StopTime.fromJson(stopTime)))));
   } else {
     throw Exception('Failed to load stop times');
+  }
+}
+
+Future<List<Source>> getSourcesFromCity(
+    http.Client client, String cityName) async {
+  final baseApiUrl = dotenv.env['BASE_API_URL'];
+
+  final uri = Uri.parse("$baseApiUrl/cities/$cityName");
+  final response = await client.get(uri);
+  if (response.statusCode == 200) {
+    Iterable l = json.decode(utf8.decode(response.bodyBytes));
+    return List<Source>.from(l.map((model) => Source.fromJson(model)));
+  } else {
+    throw Exception('Failed to load sources from city');
   }
 }
