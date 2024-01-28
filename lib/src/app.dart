@@ -24,10 +24,20 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final Future<Map<String, Source>> sources =
-      getSourcesFromCity(http.Client(), 'venezia').then((newSources) => {
-            for (var source in newSources) source.name: source,
-          });
+  late Future<Map<String, Source>> sources;
+
+  @override
+  void initState() {
+    super.initState();
+    updateSources();
+  }
+
+  void updateSources() {
+    setState(() {
+      sources = getSourcesFromCity(http.Client(), 'venezia').then(
+          (newSources) => {for (var source in newSources) source.name: source});
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +105,7 @@ class _MyAppState extends State<MyApp> {
                     );
                   case SearchStationsListView.routeName:
                   default:
-                  return SearchStationsListView(sources: sources);
+                    return SearchStationsListView(sources: sources);
                 }
               },
             );
