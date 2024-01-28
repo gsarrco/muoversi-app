@@ -123,8 +123,12 @@ class _StationSearchWidgetState extends State<StationSearchWidget> {
       // for arrival station search
       maxLimit = slice + 1;
     }
+    List<String> sources = ['venezia-aut', 'venezia-nav', 'venezia-treni'];
+    if (widget.onlySource != null) {
+      sources = [widget.onlySource!];
+    }
     List<Station> stations = await searchStationsAndHide(
-        http.Client(), query, maxLimit, slice, widget.onlySource, hideIds);
+        http.Client(), query, maxLimit, slice, sources, hideIds);
     if (widget.depStation == null) {
       return stations
           .map((station) => StationDetailsArguments(depStation: station))

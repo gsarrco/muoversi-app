@@ -8,18 +8,14 @@ import '../models/offset.dart';
 import '../models/station.dart';
 
 Future<List<Station>> searchStations(
-    http.Client client, String query, int limit,
-    [String? onlySource]) async {
+    http.Client client, String query, int limit, List<String> sources) async {
   final baseApiUrl = dotenv.env['BASE_API_URL'];
 
   Map<String, String> queryParameters = {
     'q': query,
     'limit': limit.toString(),
+    'sources': sources.join(','),
   };
-
-  if (onlySource != null) {
-    queryParameters['only_source'] = onlySource;
-  }
 
   final uri = Uri.parse("$baseApiUrl/search/stations")
       .replace(queryParameters: queryParameters);

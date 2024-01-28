@@ -23,10 +23,16 @@ void main() async {
       const query = 'test';
       const limit = 1;
       final baseApiUrl = dotenv.env['BASE_API_URL'];
+      const List<String> sources = [
+        'venezia-aut',
+        'venezia-nav',
+        'venezia-treni'
+      ];
       final uri =
           Uri.parse("$baseApiUrl/search/stations").replace(queryParameters: {
         'q': query,
         'limit': limit.toString(),
+        'sources': sources.join(','),
       });
 
       const result = [
@@ -43,19 +49,19 @@ void main() async {
       when(client.get(uri))
           .thenAnswer((_) async => http.Response(jsonEncode(result), 200));
 
-      expect(await searchStations(client, query, limit), isA<List<Station>>());
+      expect(await searchStations(client, query, limit, sources),
+          isA<List<Station>>());
     });
     test('returns only treni stations', () async {
       const query = 'Venezia';
       const limit = 1;
       final baseApiUrl = dotenv.env['BASE_API_URL'];
-      const onlySource = 'venezia-treni';
-
+      const List<String> sources = ['venezia-treni'];
       final uri =
           Uri.parse("$baseApiUrl/search/stations").replace(queryParameters: {
         'q': query,
         'limit': limit.toString(),
-        'only_source': onlySource,
+        'sources': sources.join(','),
       });
 
       const result = [
@@ -72,7 +78,7 @@ void main() async {
       when(client.get(uri))
           .thenAnswer((_) async => http.Response(jsonEncode(result), 200));
 
-      expect(await searchStations(client, query, limit, onlySource),
+      expect(await searchStations(client, query, limit, sources),
           isA<List<Station>>());
     });
   });
@@ -140,7 +146,7 @@ void main() async {
       const maxLimit = 3;
       const slice = 2;
       final baseApiUrl = dotenv.env['BASE_API_URL'];
-      const onlySource = 'venezia-treni';
+      const List<String> sources = ['venezia-treni'];
       // hide Venezia Santa Lucia
       const List<String> hideIds = ['S02593'];
 
@@ -148,7 +154,7 @@ void main() async {
           Uri.parse("$baseApiUrl/search/stations").replace(queryParameters: {
         'q': query,
         'limit': maxLimit.toString(),
-        'only_source': onlySource,
+        'sources': sources.join(','),
       });
 
       const httpResult = [
@@ -182,7 +188,7 @@ void main() async {
           .thenAnswer((_) async => http.Response(jsonEncode(httpResult), 200));
 
       List<Station> result = await searchStationsAndHide(
-          client, query, maxLimit, slice, onlySource, hideIds);
+          client, query, maxLimit, slice, sources, hideIds);
 
       expect(result.length, 2);
       expect(result[0].toJson(), httpResult[1]);
