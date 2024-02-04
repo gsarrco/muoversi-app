@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:muoversi/src/models/stop_time.dart';
 
@@ -8,10 +7,11 @@ import '../models/offset.dart';
 import '../models/source.dart';
 import '../models/station.dart';
 
+const String baseApiUrl = String.fromEnvironment('BASE_API_URL',
+    defaultValue: 'https://api.muoversi.app');
+
 Future<List<Station>> searchStations(
     http.Client client, String query, int limit, List<String> sources) async {
-  final baseApiUrl = dotenv.env['BASE_API_URL'];
-
   Map<String, String> queryParameters = {
     'q': query,
     'limit': limit.toString(),
@@ -38,8 +38,6 @@ Future<List<List<StopTime>>> getStopTimes(
     Offset? offset,
     int limit,
     String? arrStopsIds) async {
-  final baseApiUrl = dotenv.env['BASE_API_URL'];
-
   String? offsetByStopsIds;
   int direction = 1;
   if (offset != null && offset.direction != 0) {
@@ -69,8 +67,6 @@ Future<List<List<StopTime>>> getStopTimes(
 
 Future<List<Source>> getSourcesFromCity(
     http.Client client, String cityName) async {
-  final baseApiUrl = dotenv.env['BASE_API_URL'];
-
   final uri = Uri.parse("$baseApiUrl/cities/$cityName");
   final response = await client.get(uri);
   if (response.statusCode == 200) {
