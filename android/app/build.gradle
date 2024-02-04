@@ -28,6 +28,11 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
+def dartEnvironmentVariables = [
+    APP_ID_SUFFIX: project.hasProperty('APP_ID_SUFFIX') ? project.APP_ID_SUFFIX : "",
+    APP_NAME: project.hasProperty('APP_NAME') ? project.APP_NAME : "Muoversi"
+]
+
 android {
     namespace "app.muoversi"
     compileSdkVersion flutter.compileSdkVersion
@@ -47,10 +52,9 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "app.muoversi"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
+        applicationIdSuffix dartEnvironmentVariables.APP_ID_SUFFIX
+        resValue "string", "app_name", dartEnvironmentVariables.APP_NAME
         minSdkVersion flutter.minSdkVersion
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
