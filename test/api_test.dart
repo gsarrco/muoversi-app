@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mockito/annotations.dart';
@@ -16,14 +15,12 @@ import 'api_test.mocks.dart';
 
 @GenerateMocks([http.Client])
 void main() async {
-  await dotenv.load();
   final client = MockClient();
   group('api', () {
     test('returns a List of Station if the http call completes successfully',
         () async {
       const query = 'test';
       const limit = 1;
-      final baseApiUrl = dotenv.env['BASE_API_URL'];
       const List<String> sources = [
         'venezia-aut',
         'venezia-nav',
@@ -56,7 +53,6 @@ void main() async {
     test('returns only treni stations', () async {
       const query = 'Venezia';
       const limit = 1;
-      final baseApiUrl = dotenv.env['BASE_API_URL'];
       const List<String> sources = ['venezia-treni'];
       final uri =
           Uri.parse("$baseApiUrl/search/stations").replace(queryParameters: {
@@ -102,7 +98,6 @@ void main() async {
 
       const Offset? offset = null;
 
-      final baseApiUrl = dotenv.env['BASE_API_URL'];
       final uri = Uri.parse("$baseApiUrl/stop_times").replace(queryParameters: {
         'dep_stops_ids': depStopsIds,
         'source': source,
@@ -146,7 +141,6 @@ void main() async {
       const query = 'Venezia';
       const maxLimit = 3;
       const slice = 2;
-      final baseApiUrl = dotenv.env['BASE_API_URL'];
       const List<String> sources = ['venezia-treni'];
       // hide Venezia Santa Lucia
       const List<String> hideIds = ['S02593'];
@@ -199,8 +193,7 @@ void main() async {
     test('returns a List of Source if the http call completes successfully',
         () async {
       const city = 'venezia';
-      final baseApiUrl = dotenv.env['BASE_API_URL'];
-      final url = '$baseApiUrl/cities/$city';
+      const url = '$baseApiUrl/cities/$city';
       const result = [
         {"name": "venezia-aut", "color": "#FF9800", "icon_code": 57813}
       ];
