@@ -1,5 +1,5 @@
 name: muoversi
-description: A new Flutter project.
+description: Public transit app, interface of Muoversi Server
 
 # Prevent accidental publishing to pub.dev.
 publish_to: 'none'
